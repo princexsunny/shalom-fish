@@ -176,9 +176,8 @@ export default function AdminPage() {
       try {
         const url = await uploadImage(f);
         setImages((prev) => [...prev, { name: f.name, url }]);
-      } catch {
-        setToast("Image upload failed");
-        setTimeout(() => setToast(""), 2200);
+      } catch (err) {
+        flashError(err);
       }
     }
     e.target.value = "";
