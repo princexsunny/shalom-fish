@@ -1,0 +1,316 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink-900: #021b17;
+  --ink-800: #062f27;
+  --ink-700: #0d3c33;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--ink-900);
+  color: #eafff7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+::selection {
+  background: rgba(163, 230, 53, 0.3);
+  color: #fff;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #021b17;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(#0d3c33, #114a3e);
+  border-radius: 8px;
+}
+
+.font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+
+/* Frosted glass */
+.glass {
+  background: rgba(13, 60, 51, 0.35);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(94, 234, 212, 0.12);
+}
+.glass-strong {
+  background: rgba(6, 47, 39, 0.6);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(94, 234, 212, 0.16);
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, #eafff7 0%, #5eead4 45%, #a3e635 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hairline {
+  border-color: rgba(94, 234, 212, 0.12);
+}
+
+/* Section reveal helper (GSAP toggles handled in JS; fallback visible) */
+.reveal {
+  opacity: 1;
+}
+
+/* Marquee for infinite carousels */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------------- Super Offer featured card ---------------- */
+.super-offer-card {
+  animation: superFloat 5s ease-in-out infinite;
+}
+@keyframes superFloat {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) translateZ(55px) translateY(0) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateZ(55px) translateY(-5px) scale(1.03);
+  }
+}
+.super-offer-card:hover {
+  animation-play-state: paused;
+  transform: translate(-50%, -50%) translateZ(55px) translateY(-8px) scale(1.05) !important;
+  transition: transform 0.3s ease;
+}
+
+.super-glow {
+  border: 1.5px solid rgba(163, 230, 53, 0.6);
+  animation: superGlow 3.6s ease-in-out infinite;
+}
+@keyframes superGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 16px -4px rgba(163, 230, 53, 0.5), 0 0 30px -10px rgba(250, 204, 21, 0.35);
+    border-color: rgba(163, 230, 53, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 30px -2px rgba(163, 230, 53, 0.8), 0 0 50px -6px rgba(250, 204, 21, 0.55);
+    border-color: rgba(250, 204, 21, 0.75);
+  }
+}
+.super-glow:hover {
+  box-shadow: 0 0 42px -2px rgba(163, 230, 53, 0.9), 0 0 66px -6px rgba(250, 204, 21, 0.65) !important;
+}
+
+.super-shimmer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 5;
+}
+.super-shimmer::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 45%;
+  height: 200%;
+  background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transform: skewX(-20deg);
+  animation: superShimmer 4.5s ease-in-out infinite;
+}
+@keyframes superShimmer {
+  0% {
+    left: -60%;
+  }
+  55% {
+    left: 130%;
+  }
+  100% {
+    left: 130%;
+  }
+}
+.super-offer-card:hover .super-shimmer::after {
+  animation-duration: 2.2s;
+}
+
+.super-spark {
+  position: absolute;
+  height: 5px;
+  width: 5px;
+  border-radius: 9999px;
+  background: rgba(250, 204, 21, 0.95);
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.9);
+  pointer-events: none;
+  z-index: 6;
+  animation: superSpark 3s ease-in-out infinite;
+}
+@keyframes superSpark {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.super-badge {
+  background: linear-gradient(100deg, #fde68a, #f59e0b, #fbbf24);
+  color: #1a1400;
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .super-offer-card,
+  .super-glow,
+  .super-shimmer::after,
+  .super-spark {
+    animation: none !important;
+  }
+}
+
+/* traveling dotted border — live card progress dot */
+.border-dot {
+  position: absolute;
+  height: 5px;
+  width: 5px;
+  border-radius: 9999px;
+  background: rgba(163, 230, 53, 0.14);
+  transform: translate(-50%, -50%);
+  transition: background 0.2s ease, box-shadow 0.25s ease;
+  pointer-events: none;
+}
+.border-dot.on {
+  background: #a3ff32;
+  box-shadow: 0 0 8px #a3ff32, 0 0 16px #a3ff32;
+}
+
+/* category chip — soft pulsing glow when active */
+.chip-active {
+  animation: chipPulse 1.9s ease-in-out infinite;
+}
+@keyframes chipPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 4px rgba(163, 230, 53, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 9px rgba(163, 230, 53, 0.35);
+  }
+}
+
+/* -------- 3D product-card slider -------- */
+.slider-stage {
+  perspective: 1900px;
+}
+.slide-card {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  display: flex;
+  flex-direction: column;
+  transform-style: preserve-3d;
+  will-change: transform, filter, opacity;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), filter 0.6s ease,
+    opacity 0.5s ease;
+  cursor: grab;
+}
+.slide-card.is-active {
+  cursor: default;
+}
+.slide-media {
+  transition: flex-basis 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.slide-reflection {
+  position: absolute;
+  left: 50%;
+  top: calc(56% + (var(--cardH) / 2) - 2px);
+  width: var(--cardW);
+  height: calc(var(--cardH) * 0.42);
+  transform: translateX(-50%) scaleY(-1);
+  background-size: cover;
+  background-position: center top;
+  border-radius: 0 0 28px 28px;
+  filter: blur(9px);
+  opacity: 0.16;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-mask-image: linear-gradient(to top, transparent 8%, rgba(0, 0, 0, 0.6));
+  mask-image: linear-gradient(to top, transparent 8%, rgba(0, 0, 0, 0.6));
+}
+
+/* details-on-card entrance */
+.detail-in {
+  animation: detailIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes detailIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.noise::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
