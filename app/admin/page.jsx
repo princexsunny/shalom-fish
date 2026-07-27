@@ -84,25 +84,32 @@ export default function AdminPage() {
     } catch {}
   }, []);
 
+  // Save to the backend and surface real failures (e.g. blocked by Firestore
+  // security rules) instead of silently doing nothing.
+  const flashError = (err) => {
+    const msg = err?.code || err?.message || "Unknown error";
+    setToast(`Save failed: ${msg}`);
+    setTimeout(() => setToast(""), 4000);
+  };
   const persistOverrides = (v) => {
     setOverrides(v);
-    setData("overrides", v);
+    setData("overrides", v).catch(flashError);
   };
   const persistDeleted = (v) => {
     setDeleted(v);
-    setData("deleted", v);
+    setData("deleted", v).catch(flashError);
   };
   const persistCategories = (v) => {
     setCategories(v);
-    setData("categories", v);
+    setData("categories", v).catch(flashError);
   };
   const persistOffers = (v) => {
     setOffers(v);
-    setData("offers", v);
+    setData("offers", v).catch(flashError);
   };
   const persistLive = (v) => {
     setLive(v);
-    setData("live", v);
+    setData("live", v).catch(flashError);
   };
 
   const getPw = () => {
@@ -148,11 +155,11 @@ export default function AdminPage() {
 
   const persistSaved = (list) => {
     setSaved(list);
-    setData("products", list);
+    setData("products", list).catch(flashError);
   };
   const persistStock = (obj) => {
     setStock(obj);
-    setData("stock", obj);
+    setData("stock", obj).catch(flashError);
   };
 
   // auto-sliding image preview
