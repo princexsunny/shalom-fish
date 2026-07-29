@@ -37,7 +37,7 @@ export default function Navbar({ cartCount = 0, wishCount = 0, onCart = () => {}
             <button
               onClick={onWishlist}
               aria-label="Wishlist"
-              className="glass relative grid h-8 w-8 place-items-center rounded-xl text-sm text-lime-accent ring-1 ring-white/10 transition hover:text-white"
+              className="glass relative grid h-9 w-9 place-items-center rounded-xl text-sm text-lime-accent ring-1 ring-white/10 transition active:scale-90 hover:text-white"
             >
               ♥
               {wishCount > 0 && (
@@ -48,13 +48,13 @@ export default function Navbar({ cartCount = 0, wishCount = 0, onCart = () => {}
             </button>
             <a
               href="/admin"
-              className="glass hidden rounded-xl px-3 py-1.5 text-xs font-semibold text-white/80 ring-1 ring-white/10 transition hover:text-lime-accent sm:inline-flex"
+              className="glass hidden rounded-xl min-h-[38px] px-3.5 py-2 text-xs font-semibold active:scale-95 text-white/80 ring-1 ring-white/10 transition hover:text-lime-accent sm:inline-flex"
             >
               Admin
             </a>
             <button
               onClick={onCart}
-              className="relative flex items-center gap-1.5 rounded-xl bg-lime-accent px-3 py-1.5 text-xs font-semibold text-ink-900 shadow-glow-lime transition hover:brightness-110"
+              className="relative flex items-center gap-1.5 rounded-xl bg-lime-accent min-h-[38px] px-3.5 py-2 text-xs font-semibold active:scale-95 text-ink-900 shadow-glow-lime transition hover:brightness-110"
             >
               Cart
               <span className="grid h-4 w-4 place-items-center rounded-full bg-ink-900 text-[10px] text-lime-accent">

@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 
 const DELIVERY = 40;
 const FREE_ABOVE = 499;
@@ -6,6 +7,16 @@ const CLEAN_FEE = 20;
 const GST_RATE = 0.18;
 
 export default function CartDrawer({ open, onClose, cart, setCart }) {
+  // stop the page scrolling behind the drawer on touch devices
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   const inc = (key) => setCart((c) => c.map((x) => (x.key === key ? { ...x, qty: x.qty + 1 } : x)));
   const dec = (key) =>
     setCart((c) => c.flatMap((x) => (x.key === key ? (x.qty > 1 ? [{ ...x, qty: x.qty - 1 }] : []) : [x])));
@@ -43,7 +54,7 @@ export default function CartDrawer({ open, onClose, cart, setCart }) {
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div className="flex-1 overscroll-contain overflow-y-auto px-5 py-4">
           {cart.length === 0 ? (
             <div className="grid h-full place-items-center text-center text-white/40">
               <div>

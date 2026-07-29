@@ -20,11 +20,58 @@ body {
   color: #eafff7;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* keep text legible when a phone is rotated to landscape */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   font-family: var(--font-sans), system-ui, sans-serif;
   overflow-x: hidden;
+  /* stop pull-to-refresh / rubber-banding fighting the card swipe */
+  overscroll-behavior: none;
+}
+
+/* ---------- touchscreen optimisation ---------- */
+
+/* no grey flash box when tapping on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* momentum scrolling inside drawers/lists */
+.overflow-y-auto,
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Touch devices: guarantee comfortable hit targets and drop hover-only styling
+   (hover states stick on touch and look "broken" after a tap). */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  a,
+  input[type="checkbox"],
+  [role="button"] {
+    touch-action: manipulation; /* removes the 300ms double-tap delay */
+  }
+
+  /* comfortable hit targets (~44px) for the small circular controls */
+  .tap-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* hover styles don't belong on touch — they stick after a tap */
+  .no-touch-hover:hover {
+    transform: none;
+  }
+
+  /* form controls large enough that iOS doesn't zoom on focus (needs >=16px) */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }
 
 /* Lenis smooth scroll */

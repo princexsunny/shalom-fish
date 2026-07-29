@@ -43,6 +43,7 @@ export default function AdminPage() {
   const [form, setForm] = useState(EMPTY);
   const [images, setImages] = useState([]);
   const [idx, setIdx] = useState(0);
+  const [uploading, setUploading] = useState(false);
   const [editId, setEditId] = useState(null);
   const [editKind, setEditKind] = useState(null); // "added" | "base"
   const [toast, setToast] = useState("");
@@ -172,6 +173,8 @@ export default function AdminPage() {
   // upload via data layer: Firebase Storage when configured, else a compressed data URL
   const onFiles = async (e) => {
     const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setUploading(true);
     for (const f of files) {
       try {
         const url = await uploadImage(f);
@@ -180,6 +183,7 @@ export default function AdminPage() {
         flashError(err);
       }
     }
+    setUploading(false);
     e.target.value = "";
   };
   const removeImg = (i) => {
@@ -662,10 +666,11 @@ export default function AdminPage() {
 
               <button
                 type="button"
+                disabled={uploading}
                 onClick={() => fileRef.current?.click()}
-                className="w-full rounded-2xl border border-dashed border-white/20 bg-white/5 py-4 text-sm text-white/70 transition hover:border-lime-accent/50 hover:text-lime-accent"
+                className="w-full rounded-2xl border border-dashed border-white/20 bg-white/5 py-4 text-sm text-white/70 transition hover:border-lime-accent/50 hover:text-lime-accent disabled:opacity-60"
               >
-                + Upload images
+                {uploading ? "Uploading…" : "+ Upload images"}
               </button>
               <input ref={fileRef} type="file" accept="image/*" multiple onChange={onFiles} className="hidden" />
 

@@ -29,6 +29,9 @@ export const viewport = {
   themeColor: "#021B17",
   width: "device-width",
   initialScale: 1,
+  // let the UI extend under notches/rounded corners; pinch-zoom stays enabled
+  // (never disable it — screen readers and low-vision users rely on it)
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }) {

@@ -1,6 +1,17 @@
 "use client";
+import { useEffect } from "react";
 
 export default function WishlistDrawer({ open, onClose, items = [], onRemove = () => {}, onAdd = () => {} }) {
+  // stop the page scrolling behind the drawer on touch devices
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   return (
     <>
       <div
@@ -27,7 +38,7 @@ export default function WishlistDrawer({ open, onClose, items = [], onRemove = (
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div className="flex-1 overscroll-contain overflow-y-auto px-5 py-4">
           {items.length === 0 ? (
             <div className="grid h-full place-items-center text-center text-white/40">
               <div>

@@ -174,24 +174,38 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
 
   // drag / swipe
   const onDown = (e) => {
-    drag.current = { on: true, x: e.clientX, moved: false };
+    drag.current = { on: true, x: e.clientX, y: e.clientY, moved: false };
+    // keep receiving events even if the finger slides off the element
+    try {
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+    } catch {}
     if (typeof document !== "undefined") document.body.style.cursor = "grabbing";
   };
   const onMove = (e) => {
     if (!drag.current.on) return;
     const dx = e.clientX - drag.current.x;
-    if (dx > 72) {
+    const dy = e.clientY - drag.current.y;
+    // ignore mostly-vertical gestures so the page can still be scrolled
+    if (Math.abs(dy) > Math.abs(dx) * 1.5 && Math.abs(dy) > 24) return;
+    // touch gets a shorter threshold — a 72px swipe is a long way on a phone
+    const threshold = e.pointerType === "touch" ? 46 : 72;
+    if (dx > threshold) {
       prev();
       drag.current.x = e.clientX;
+      drag.current.y = e.clientY;
       drag.current.moved = true;
-    } else if (dx < -72) {
+    } else if (dx < -threshold) {
       next();
       drag.current.x = e.clientX;
+      drag.current.y = e.clientY;
       drag.current.moved = true;
     }
   };
-  const onUp = () => {
+  const onUp = (e) => {
     drag.current.on = false;
+    try {
+      e?.currentTarget?.releasePointerCapture?.(e.pointerId);
+    } catch {}
     if (typeof document !== "undefined") document.body.style.cursor = "";
   };
 
@@ -230,7 +244,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
               <button
                 key={c.id}
                 onClick={() => onCat(c.id)}
-                className="flex flex-1 flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
+                className="tap-target flex flex-1 flex-col items-center gap-1 py-1 outline-none focus:outline-none focus-visible:outline-none"
               >
                 <span
                   className={`grid h-9 w-9 place-items-center rounded-full text-sm ring-1 transition ${
@@ -257,8 +271,9 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
         onPointerMove={onMove}
         onPointerUp={onUp}
         onPointerLeave={onUp}
+        onPointerCancel={onUp}
         className="slider-stage absolute inset-0 z-10 select-none"
-        style={{ "--cardW": CARD_W, "--cardH": CARD_H }}
+        style={{ "--cardW": CARD_W, "--cardH": CARD_H, touchAction: "pan-y" }}
       >
         {/* reflection of active card */}
         {list[active] && (
@@ -332,7 +347,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                         e.stopPropagation();
                         onToggleWish(p);
                       }}
-                      className={`absolute bottom-3 right-3 z-10 grid h-10 w-10 place-items-center rounded-full text-lg ring-1 backdrop-blur transition ${
+                      className={`tap-target absolute bottom-3 right-3 z-10 grid h-11 w-11 place-items-center rounded-full text-lg ring-1 backdrop-blur transition active:scale-90 ${
                         wishlist[p.id]
                           ? "bg-lime-accent text-ink-900 ring-lime-accent"
                           : "bg-ink-900/40 text-lime-accent ring-white/15 hover:text-white"
@@ -393,7 +408,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                             e.stopPropagation();
                             setWeightIdx(k);
                           }}
-                          className={`rounded-xl px-3 py-1 text-xs font-semibold ring-1 transition ${
+                          className={`min-h-[36px] rounded-xl px-4 py-1.5 text-xs font-semibold ring-1 transition active:scale-95 ${
                             k === weightIdx
                               ? "bg-lime-accent/15 text-lime-accent ring-lime-accent"
                               : "bg-white/5 text-white/70 ring-white/10 hover:text-white"
@@ -431,7 +446,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                         price: Math.round(p.price * w.mult),
                       });
                     }}
-                    className={`w-full shrink-0 rounded-2xl px-5 py-2.5 font-semibold uppercase tracking-wide transition hover:brightness-110 ${
+                    className={`min-h-[46px] w-full shrink-0 rounded-2xl px-5 py-3 font-semibold uppercase tracking-wide transition active:scale-[0.98] hover:brightness-110 ${
                       cartIds && cartIds.has(p.id)
                         ? "bg-emerald-glow text-ink-900 ring-2 ring-lime-accent"
                         : "bg-lime-accent text-ink-900"
@@ -461,7 +476,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       <button
         onClick={prev}
         aria-label="Previous product"
-        className="glass absolute left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 flex-col items-center justify-center rounded-full text-white/80 shadow-frost ring-1 ring-lime-accent/40 transition hover:text-lime-accent sm:h-11 sm:w-11"
+        className="glass absolute left-3 top-1/2 tap-target z-30 flex h-11 w-11 -translate-y-1/2 flex-col items-center justify-center rounded-full text-white/80 shadow-frost ring-1 ring-lime-accent/40 transition active:scale-95 hover:text-lime-accent"
       >
         <span className="text-[9px] leading-none">‹</span>
         <span className="text-[9px] font-bold leading-none text-lime-accent">
@@ -472,7 +487,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       <button
         onClick={next}
         aria-label="Next product"
-        className="glass absolute right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 flex-col items-center justify-center rounded-full text-white/80 shadow-frost ring-1 ring-lime-accent/40 transition hover:text-lime-accent sm:h-11 sm:w-11"
+        className="glass absolute right-3 top-1/2 tap-target z-30 flex h-11 w-11 -translate-y-1/2 flex-col items-center justify-center rounded-full text-white/80 shadow-frost ring-1 ring-lime-accent/40 transition active:scale-95 hover:text-lime-accent"
       >
         <span className="text-[9px] leading-none">›</span>
         <span className="text-[9px] font-bold leading-none text-lime-accent">
