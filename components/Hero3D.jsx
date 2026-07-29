@@ -5,10 +5,11 @@ import { products, discountPct } from "@/lib/products";
 import { getData } from "@/lib/store";
 import LiveMarketBox from "./LiveMarketBox";
 
-// Fills the mobile screen (with margins) and caps out on tablet/desktop.
-// 360px → ~296px card, 430px → ~354px card, desktop → 320px.
-const CARD_W = "clamp(280px, 82vw, 320px)";
-const CARD_H = "clamp(430px, 62vh, 510px)";
+// Fills the mobile screen (small side margins), caps out on tablet/desktop.
+// 360px → 324px card, 430px → 360px, desktop → 360px.
+const CARD_W = "clamp(300px, 90vw, 360px)";
+// leaves room for the navbar + category strip above and the live ticker below
+const CARD_H = "min(calc(100svh - 250px), 560px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -227,7 +228,8 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       width: CARD_W,
       height: CARD_H,
       transform: `translate(-50%, -50%) translateX(${x}) translateZ(${z}px) rotateY(${ry}deg) scale(${s})`,
-      filter: isA ? "none" : `blur(${Math.min(2.5, 0.4 + a * 0.9)}px) brightness(0.88)`,
+      // lighter blur on the light theme — neighbours were washing out to nothing
+      filter: isA ? "none" : `blur(${Math.min(1.4, 0.2 + a * 0.5)}px) saturate(0.92)`,
       opacity: hidden ? 0 : 1,
       zIndex: 100 - Math.round(a * 10),
       pointerEvents: hidden ? "none" : "auto",
@@ -241,27 +243,32 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       <div className="pointer-events-none absolute -left-40 top-1/3 h-[32rem] w-[32rem] rounded-full bg-emerald-glow/[0.08] blur-[150px]" />
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-lime-accent/[0.05] blur-[150px]" />
 
-      {/* category selector — at top-bar height, centered */}
-      <div className="absolute left-1/2 top-[7vh] z-[60] -translate-x-1/2 sm:top-3" style={{ width: CARD_W }}>
-        <div className="flex items-start justify-between">
+      {/* category selector — full-width scrollable strip below the navbar */}
+      <div className="absolute inset-x-0 top-[68px] z-[60] sm:top-[64px]">
+        <div className="no-scrollbar flex snap-x gap-1 overflow-x-auto px-3 pb-1 sm:justify-center sm:gap-2">
           {chipCats.map((c) => {
             const on = cat === c.id;
             return (
               <button
                 key={c.id}
                 onClick={() => onCat(c.id)}
-                className="tap-target flex flex-1 flex-col items-center gap-1 py-1 outline-none focus:outline-none focus-visible:outline-none"
+                className="flex w-[58px] shrink-0 snap-start flex-col items-center gap-1 py-1 outline-none focus:outline-none focus-visible:outline-none"
               >
                 <span
-                  className={`grid h-9 w-9 place-items-center rounded-full text-sm ring-1 transition ${
+                  className={`grid h-11 w-11 place-items-center rounded-full text-sm ring-1 transition ${
                     on
-                      ? "chip-active bg-lime-accent text-ink-900 ring-lime-accent"
-                      : "glass text-lime-accent ring-slate-200 hover:text-slate-900"
+                      ? "chip-active bg-lime-accent text-white ring-lime-accent"
+                      : "bg-white text-lime-600 ring-slate-200 hover:bg-slate-50"
                   }`}
                 >
                   {c.icon}
                 </span>
-                <span className={`text-center text-[8px] leading-tight ${on ? "text-lime-accent" : "text-slate-400"}`}>
+                <span
+                  className={`w-full truncate text-center text-[9px] font-medium leading-tight ${
+                    on ? "text-lime-700" : "text-slate-500"
+                  }`}
+                  title={c.id}
+                >
                   {c.label}
                 </span>
               </button>
@@ -364,8 +371,8 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                 )}
 
                 {!isA && (
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/85 to-transparent p-3 pt-8 text-center">
-                    <span className="font-display text-base font-bold text-slate-900">{p.name}</span>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/90 to-transparent p-3 pt-10 text-center">
+                    <span className="font-display text-sm font-bold text-slate-800">{p.name}</span>
                   </div>
                 )}
               </div>
@@ -498,8 +505,8 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
         <span className="text-[6px] leading-none text-slate-400">/{String(N).padStart(2, "0")}</span>
       </button>
 
-      {/* live fish market — bottom left */}
-      <div className="absolute bottom-4 left-3 z-20 hidden sm:block">
+      {/* live fish market — centred below the card, visible on mobile too */}
+      <div className="absolute inset-x-0 bottom-3 z-20 flex justify-center px-3 sm:bottom-4 sm:justify-start sm:px-0 sm:pl-3">
         <LiveMarketBox items={list} onSelect={(idx) => goto(idx)} />
       </div>
 

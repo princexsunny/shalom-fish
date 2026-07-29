@@ -25,8 +25,11 @@ export default function Navbar({ cartCount = 0, wishCount = 0, onCart = () => {}
               ⌘
             </span>
             <span className="min-w-0 leading-tight">
-              <span className="font-display block truncate text-sm font-bold text-slate-900">Shalom Fish</span>
-              <span className="block truncate text-[9px] tracking-widest text-slate-500">FRESH FROM THE SEA</span>
+              <span className="font-display block whitespace-nowrap text-sm font-bold text-slate-900">Shalom Fish</span>
+              {/* tagline only where there's room — it truncated badly on phones */}
+              <span className="hidden whitespace-nowrap text-[9px] tracking-widest text-slate-500 md:block">
+                FRESH FROM THE SEA
+              </span>
             </span>
           </a>
 
