@@ -8,8 +8,9 @@ import LiveMarketBox from "./LiveMarketBox";
 // Fills the mobile screen (small side margins), caps out on tablet/desktop.
 // 360px → 324px card, 430px → 360px, desktop → 360px.
 const CARD_W = "clamp(300px, 90vw, 360px)";
-// leaves room for navbar + category strip above, and dots + live ticker below
-const CARD_H = "min(calc(100svh - 280px), 540px)";
+// leaves room for navbar + category pills above, and dots + live ticker below
+const TOP_OFFSET = 114; // px: navbar (56) + category tiles (58)
+const CARD_H = "min(calc(100svh - 220px), 620px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -89,8 +90,8 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
   const chipCats = useMemo(
     () => [
       { id: "All", label: "All", icon: "◎" },
-      // pills have room for the full name now
-      ...cats.map((c) => ({ id: c, label: c, icon: CAT_ICONS[c] || "●" })),
+      // short label so the whole row fits a phone screen without scrolling
+      ...cats.map((c) => ({ id: c, label: c.split(" ")[0], icon: CAT_ICONS[c] || "●" })),
     ],
     [cats]
   );
@@ -240,9 +241,9 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       <div className="pointer-events-none absolute -left-40 top-1/3 h-[32rem] w-[32rem] rounded-full bg-emerald-glow/[0.08] blur-[150px]" />
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-lime-accent/[0.05] blur-[150px]" />
 
-      {/* category selector — clean scrollable pills */}
-      <div className="absolute inset-x-0 top-[70px] z-[60]">
-        <div className="no-scrollbar flex snap-x gap-2 overflow-x-auto px-4 py-1 sm:justify-center">
+      {/* category selector — square icon tiles matching the top-bar buttons */}
+      <div className="absolute inset-x-0 top-[56px] z-[60]">
+        <div className="no-scrollbar flex items-start justify-center gap-1.5 overflow-x-auto px-2 py-1 sm:gap-2">
           {chipCats.map((c) => {
             const on = cat === c.id;
             return (
@@ -250,14 +251,24 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                 key={c.id}
                 onClick={() => onCat(c.id)}
                 title={c.id}
-                className={`flex h-9 shrink-0 snap-start items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-xs font-semibold outline-none transition-all duration-200 active:scale-95 focus:outline-none ${
-                  on
-                    ? "border-lime-600 bg-lime-600 text-white shadow-sm"
-                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
-                }`}
+                className="flex shrink-0 flex-col items-center gap-0.5 outline-none focus:outline-none"
               >
-                <span className={on ? "text-white/90" : "text-lime-600"}>{c.icon}</span>
-                {c.label}
+                <span
+                  className={`grid h-10 w-10 place-items-center rounded-xl border text-base transition-all duration-200 active:scale-90 ${
+                    on
+                      ? "border-lime-600 bg-lime-600 text-white shadow-sm"
+                      : "border-slate-200 bg-white text-lime-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {c.icon}
+                </span>
+                <span
+                  className={`max-w-[52px] truncate text-[9px] font-medium leading-tight ${
+                    on ? "text-lime-700" : "text-slate-500"
+                  }`}
+                >
+                  {c.label}
+                </span>
               </button>
             );
           })}
@@ -302,7 +313,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
               {/* media (upper) */}
               <div
                 className="slide-media relative w-full flex-none overflow-hidden"
-                style={{ flexBasis: isA ? "55%" : "100%" }}
+                style={{ flexBasis: isA ? "52%" : "100%" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -471,7 +482,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       {/* tiny dot progress — directly under the card */}
       <div
         className="pointer-events-auto absolute inset-x-0 z-30 flex justify-center gap-1.5 px-4"
-        style={{ top: `calc(140px + ${CARD_H} + 14px)` }}
+        style={{ top: `calc(${TOP_OFFSET}px + ${CARD_H} + 12px)` }}
       >
         {list.map((_, k) => (
           <button

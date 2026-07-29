@@ -188,22 +188,7 @@ html.lenis body {
   border: 1.5px solid rgba(163, 230, 53, 0.6);
   animation: superGlow 3.6s ease-in-out infinite;
 }
-/* Animating box-shadow repaints every frame. On phones keep a static glow so
-   the carousel stays at 60fps. */
-@media (max-width: 767px) {
-  .super-glow {
-    animation: none;
-    border-color: rgba(202, 138, 4, 0.7);
-    box-shadow: 0 0 18px -4px rgba(163, 230, 53, 0.55);
-  }
-  .super-offer-card {
-    animation: none;
-  }
-  .super-shimmer,
-  .super-spark {
-    display: none;
-  }
-}
+/* Full Super Offer treatment (glow + float + shimmer + sparks) on every device. */
 @keyframes superGlow {
   0%,
   100% {
@@ -327,8 +312,8 @@ html.lenis body {
 .slide-card {
   position: absolute;
   left: 50%;
-  /* sits between the category strip and the dots/live ticker */
-  top: calc(140px + min(calc(100svh - 280px), 540px) / 2);
+  /* sits between the category pills and the dots/live ticker */
+  top: calc(114px + min(calc(100svh - 220px), 620px) / 2);
   display: flex;
   flex-direction: column;
   transform-style: preserve-3d;
@@ -352,7 +337,7 @@ html.lenis body {
 .slide-reflection {
   position: absolute;
   left: 50%;
-  top: calc(140px + var(--cardH) - 2px);
+  top: calc(114px + var(--cardH) - 2px);
   width: var(--cardW);
   height: calc(var(--cardH) * 0.42);
   transform: translateX(-50%) scaleY(-1);

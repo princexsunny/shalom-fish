@@ -19,19 +19,21 @@ export default function Navbar({
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
-      <div className="border-b border-slate-200 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2 sm:gap-4 sm:px-4">
-          {/* logo — long-press/right-click free admin entry lives here */}
+    <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${scrolled ? "py-1" : "py-2"}`}>
+      <div className="mx-auto max-w-7xl px-3 sm:px-4">
+        <nav
+          className={`flex items-center gap-2 rounded-2xl px-2.5 py-1.5 transition-all duration-500 sm:gap-4 sm:px-3 ${
+            scrolled ? "border border-slate-200 bg-white/95 shadow-sm backdrop-blur" : "bg-transparent"
+          }`}
+        >
+          {/* logo */}
           <a href="#home" className="flex min-w-0 shrink items-center gap-2">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-lime-500 to-emerald-600 text-sm font-bold text-white shadow-sm">
-              🐟
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-lime-600 text-sm font-bold text-white">
+              ⌘
             </span>
             <span className="min-w-0 leading-tight">
-              <span className="font-display block whitespace-nowrap text-[15px] font-extrabold tracking-tight text-slate-900">
-                Shalom Fish
-              </span>
-              <span className="hidden whitespace-nowrap text-[9px] font-medium tracking-[0.2em] text-slate-400 sm:block">
+              <span className="font-display block whitespace-nowrap text-sm font-bold text-slate-900">Shalom Fish</span>
+              <span className="hidden whitespace-nowrap text-[9px] tracking-widest text-slate-500 sm:block">
                 FRESH FROM THE SEA
               </span>
             </span>
@@ -44,11 +46,11 @@ export default function Navbar({
             <button
               onClick={onWishlist}
               aria-label="Wishlist"
-              className="tap-target relative grid h-10 w-10 place-items-center rounded-full text-lg text-slate-500 transition active:scale-90 hover:bg-slate-100 hover:text-lime-600"
+              className="tap-target relative grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-base text-lime-600 transition active:scale-90 hover:bg-slate-50"
             >
-              ♡
+              ♥
               {wishCount > 0 && (
-                <span className="absolute right-0.5 top-0.5 grid h-4 w-4 place-items-center rounded-full bg-lime-600 text-[9px] font-bold text-white">
+                <span className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-lime-600 text-[9px] font-bold text-white">
                   {wishCount}
                 </span>
               )}
@@ -58,28 +60,33 @@ export default function Navbar({
             <button
               onClick={onLogin}
               aria-label={user ? "Account" : "Log in"}
-              className="tap-target flex h-10 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-slate-600 transition active:scale-95 hover:bg-slate-100 hover:text-slate-900"
+              className="tap-target flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 transition active:scale-95 hover:bg-slate-50"
             >
-              <span className="grid h-6 w-6 place-items-center rounded-full bg-slate-100 text-[11px]">
-                {user ? (user.name?.[0]?.toUpperCase() || "U") : "👤"}
-              </span>
+              <span className="text-sm">{user ? (user.name?.[0]?.toUpperCase() || "U") : "👤"}</span>
               <span className="hidden sm:inline">{user ? user.name?.split(" ")[0] || "Account" : "Log in"}</span>
             </button>
+
+            {/* admin */}
+            <a
+              href="/admin"
+              aria-label="Admin"
+              className="tap-target inline-flex h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition active:scale-95 hover:bg-slate-50"
+            >
+              Admin
+            </a>
 
             {/* cart */}
             <button
               onClick={onCart}
-              aria-label="Cart"
-              className="tap-target relative flex h-10 items-center gap-1.5 rounded-full bg-lime-600 px-3.5 text-xs font-semibold text-white shadow-sm transition active:scale-95 hover:bg-lime-700"
+              className="tap-target relative flex h-10 items-center gap-1.5 rounded-xl bg-lime-600 px-3.5 text-xs font-semibold text-white shadow-sm transition active:scale-95 hover:bg-lime-700"
             >
-              <span className="text-sm">🛒</span>
-              <span className="hidden sm:inline">Cart</span>
+              Cart
               <span className="grid h-4 min-w-[16px] place-items-center rounded-full bg-white px-1 text-[10px] font-bold text-lime-700">
                 {cartCount}
               </span>
             </button>
           </div>
-        </div>
+        </nav>
       </div>
     </header>
   );
