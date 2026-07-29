@@ -1,7 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import CartDrawer from "@/components/CartDrawer";
 import WishlistDrawer from "@/components/WishlistDrawer";
@@ -10,7 +9,7 @@ import LoginModal from "@/components/LoginModal";
 const Hero3D = dynamic(() => import("@/components/Hero3D"), {
   ssr: false,
   loading: () => (
-    <div className="grid h-[100svh] place-items-center bg-[radial-gradient(120%_90%_at_50%_-10%,#f0fdf4,#ffffff)]">
+    <div className="grid h-[100svh] place-items-center bg-[radial-gradient(120%_90%_at_50%_-10%,#dfeee6,#e8edf0)]">
       <div className="flex flex-col items-center gap-4">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-lime-accent/30 border-t-lime-accent" />
         <p className="text-sm tracking-[0.3em] text-slate-500">LOADING THE OCEAN…</p>

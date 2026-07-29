@@ -236,7 +236,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
   return (
     <section id="home" className="relative h-[100svh] w-full overflow-hidden">
       {/* ambient wash */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_-10%,#f0fdf4_0%,#f8fafc_45%,#ffffff_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_-10%,#dfeee6_0%,#e6ecf0_45%,#e8edf0_100%)]" />
       <div className="pointer-events-none absolute -left-40 top-1/3 h-[32rem] w-[32rem] rounded-full bg-emerald-glow/[0.08] blur-[150px]" />
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-lime-accent/[0.05] blur-[150px]" />
 

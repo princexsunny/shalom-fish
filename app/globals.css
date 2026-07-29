@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 :root {
-  /* light theme surfaces */
+  /* light theme surfaces — page is a soft tinted grey so white cards lift */
+  --page: #e8edf0;
   --ink-900: #ffffff;
   --ink-800: #f8fafc;
   --ink-700: #f1f5f9;
@@ -21,7 +22,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  background: var(--ink-900);
+  background: var(--page);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;

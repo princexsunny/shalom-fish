@@ -365,7 +365,7 @@ export default function AdminPage() {
   // ---- login gate ----
   if (!authed) {
     return (
-      <main className="grid min-h-screen place-items-center bg-slate-50 px-4 text-slate-900">
+      <main className="grid min-h-screen place-items-center bg-slate-100 px-4 text-slate-900">
         <form onSubmit={login} className="glass w-full max-w-sm rounded-4xl p-8 shadow-frost">
           <div className="mb-6 flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-lime-accent/15 text-lg text-lime-accent ring-1 ring-lime-accent/30">
@@ -407,7 +407,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900">
+    <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900">
       <div className="mx-auto max-w-5xl">
         {/* header */}
         <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
