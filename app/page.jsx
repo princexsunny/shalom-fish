@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import CartDrawer from "@/components/CartDrawer";
 import WishlistDrawer from "@/components/WishlistDrawer";
+import LoginModal from "@/components/LoginModal";
 
 const Hero3D = dynamic(() => import("@/components/Hero3D"), {
   ssr: false,
@@ -23,6 +25,28 @@ export default function Home() {
   const [wishlist, setWishlist] = useState({}); // id -> product
   const [cartOpen, setCartOpen] = useState(false);
   const [wishOpen, setWishOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // remember the customer between visits (convenience only, not auth)
+  useEffect(() => {
+    try {
+      const u = JSON.parse(localStorage.getItem("shalom_customer") || "null");
+      if (u) setUser(u);
+    } catch {}
+  }, []);
+  const saveUser = (u) => {
+    setUser(u);
+    try {
+      localStorage.setItem("shalom_customer", JSON.stringify(u));
+    } catch {}
+  };
+  const logoutUser = () => {
+    setUser(null);
+    try {
+      localStorage.removeItem("shalom_customer");
+    } catch {}
+  };
 
   const addToCart = (item) => {
     setCart((prev) => {
@@ -52,6 +76,8 @@ export default function Home() {
         wishCount={wishCount}
         onCart={() => setCartOpen(true)}
         onWishlist={() => setWishOpen(true)}
+        onLogin={() => setLoginOpen(true)}
+        user={user}
       />
       <main>
         <Hero3D cat={cat} onCat={setCat} onAdd={addToCart} wishlist={wishlist} onToggleWish={toggleWish} cartIds={cartIds} />
@@ -63,6 +89,13 @@ export default function Home() {
         items={wishItems}
         onRemove={toggleWish}
         onAdd={addToCart}
+      />
+      <LoginModal
+        open={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        user={user}
+        onSave={saveUser}
+        onLogout={logoutUser}
       />
     </>
   );

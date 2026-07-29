@@ -8,8 +8,8 @@ import LiveMarketBox from "./LiveMarketBox";
 // Fills the mobile screen (small side margins), caps out on tablet/desktop.
 // 360px → 324px card, 430px → 360px, desktop → 360px.
 const CARD_W = "clamp(300px, 90vw, 360px)";
-// leaves room for the navbar + category strip above and the live ticker below
-const CARD_H = "min(calc(100svh - 250px), 560px)";
+// leaves room for navbar + category strip above, and dots + live ticker below
+const CARD_H = "min(calc(100svh - 280px), 540px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -89,7 +89,8 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
   const chipCats = useMemo(
     () => [
       { id: "All", label: "All", icon: "◎" },
-      ...cats.map((c) => ({ id: c, label: c.split(" ")[0], icon: CAT_ICONS[c] || "●" })),
+      // pills have room for the full name now
+      ...cats.map((c) => ({ id: c, label: c, icon: CAT_ICONS[c] || "●" })),
     ],
     [cats]
   );
@@ -133,11 +134,12 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       const img = card.querySelector("[data-img]");
       if (img) gsap.fromTo(img, { scale: 1.14 }, { scale: 1, duration: 0.9, ease: "power3.out" });
 
+      // transform/opacity only — animating `filter` here caused per-frame repaints
       const items = card.querySelectorAll("[data-rv]");
       gsap.fromTo(
         items,
-        { y: 18, opacity: 0, filter: "blur(6px)" },
-        { y: 0, opacity: 1, filter: "blur(0px)", stagger: 0.07, duration: 0.55, ease: "power3.out", delay: 0.06 }
+        { y: 14, opacity: 0 },
+        { y: 0, opacity: 1, stagger: 0.05, duration: 0.42, ease: "power3.out", delay: 0.04, force3D: true }
       );
 
       const priceEl = card.querySelector("[data-price]");
@@ -164,13 +166,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
         });
       }
 
-      const cta = card.querySelector("[data-cta]");
-      if (cta)
-        gsap.fromTo(
-          cta,
-          { boxShadow: "0 0 0px rgba(163,230,53,0)" },
-          { boxShadow: "0 0 42px -6px rgba(163,230,53,0.6)", duration: 0.9, ease: "power2.out" }
-        );
+      // (dropped the box-shadow tween — shadows repaint every frame and stuttered)
     }, stage);
     return () => ctx.revert();
   }, [active, list]);
@@ -228,9 +224,10 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       width: CARD_W,
       height: CARD_H,
       transform: `translate(-50%, -50%) translateX(${x}) translateZ(${z}px) rotateY(${ry}deg) scale(${s})`,
-      // lighter blur on the light theme — neighbours were washing out to nothing
-      filter: isA ? "none" : `blur(${Math.min(1.4, 0.2 + a * 0.5)}px) saturate(0.92)`,
-      opacity: hidden ? 0 : 1,
+      // NO css filter/blur here — it forces a repaint every frame and was the
+      // main cause of the stutter. Depth is conveyed with opacity + scale only,
+      // which the compositor can animate on the GPU at 60fps.
+      opacity: hidden ? 0 : isA ? 1 : Math.max(0.42, 0.85 - a * 0.22),
       zIndex: 100 - Math.round(a * 10),
       pointerEvents: hidden ? "none" : "auto",
     };
@@ -243,34 +240,24 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       <div className="pointer-events-none absolute -left-40 top-1/3 h-[32rem] w-[32rem] rounded-full bg-emerald-glow/[0.08] blur-[150px]" />
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-lime-accent/[0.05] blur-[150px]" />
 
-      {/* category selector — full-width scrollable strip below the navbar */}
-      <div className="absolute inset-x-0 top-[68px] z-[60] sm:top-[64px]">
-        <div className="no-scrollbar flex snap-x gap-1 overflow-x-auto px-3 pb-1 sm:justify-center sm:gap-2">
+      {/* category selector — clean scrollable pills */}
+      <div className="absolute inset-x-0 top-[70px] z-[60]">
+        <div className="no-scrollbar flex snap-x gap-2 overflow-x-auto px-4 py-1 sm:justify-center">
           {chipCats.map((c) => {
             const on = cat === c.id;
             return (
               <button
                 key={c.id}
                 onClick={() => onCat(c.id)}
-                className="flex w-[58px] shrink-0 snap-start flex-col items-center gap-1 py-1 outline-none focus:outline-none focus-visible:outline-none"
+                title={c.id}
+                className={`flex h-9 shrink-0 snap-start items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-xs font-semibold outline-none transition-all duration-200 active:scale-95 focus:outline-none ${
+                  on
+                    ? "border-lime-600 bg-lime-600 text-white shadow-sm"
+                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
+                }`}
               >
-                <span
-                  className={`grid h-11 w-11 place-items-center rounded-full text-sm ring-1 transition ${
-                    on
-                      ? "chip-active bg-lime-accent text-white ring-lime-accent"
-                      : "bg-white text-lime-600 ring-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  {c.icon}
-                </span>
-                <span
-                  className={`w-full truncate text-center text-[9px] font-medium leading-tight ${
-                    on ? "text-lime-700" : "text-slate-500"
-                  }`}
-                  title={c.id}
-                >
-                  {c.label}
-                </span>
+                <span className={on ? "text-white/90" : "text-lime-600"}>{c.icon}</span>
+                {c.label}
               </button>
             );
           })}
@@ -325,7 +312,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                   draggable="false"
                   className="h-full w-full object-cover"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/70 via-transparent to-transparent" />
+                {/* no scrim on the active card — the photo stays fully clear */}
 
                 {isA && (
                   <>
@@ -359,7 +346,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                         e.stopPropagation();
                         onToggleWish(p);
                       }}
-                      className={`tap-target absolute bottom-3 right-3 z-10 grid h-11 w-11 place-items-center rounded-full text-lg ring-1 backdrop-blur transition active:scale-90 ${
+                      className={`tap-target absolute bottom-3 right-3 z-10 grid h-11 w-11 place-items-center rounded-full text-lg ring-1 shadow-sm transition active:scale-90 ${
                         wishlist[p.id]
                           ? "bg-lime-accent text-ink-900 ring-lime-accent"
                           : "bg-white/90 text-lime-600 ring-slate-200 hover:bg-white"
@@ -481,6 +468,27 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
         })}
       </div>
 
+      {/* tiny dot progress — directly under the card */}
+      <div
+        className="pointer-events-auto absolute inset-x-0 z-30 flex justify-center gap-1.5 px-4"
+        style={{ top: `calc(140px + ${CARD_H} + 14px)` }}
+      >
+        {list.map((_, k) => (
+          <button
+            key={k}
+            onClick={() => goto(k)}
+            aria-label={`Go to product ${k + 1}`}
+            className="group grid h-4 w-3 place-items-center"
+          >
+            <span
+              className={`block rounded-full transition-all duration-300 ${
+                k === active ? "h-1.5 w-4 bg-lime-600" : "h-1.5 w-1.5 bg-slate-300 group-hover:bg-slate-400"
+              }`}
+            />
+          </button>
+        ))}
+      </div>
+
       {/* prev / next with position counter */}
       <button
         onClick={prev}
@@ -505,8 +513,8 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
         <span className="text-[6px] leading-none text-slate-400">/{String(N).padStart(2, "0")}</span>
       </button>
 
-      {/* live fish market — centred below the card, visible on mobile too */}
-      <div className="absolute inset-x-0 bottom-3 z-20 flex justify-center px-3 sm:bottom-4 sm:justify-start sm:px-0 sm:pl-3">
+      {/* live fish market — centred below the dots */}
+      <div className="absolute inset-x-0 bottom-3 z-20 flex justify-center px-3 sm:bottom-4">
         <LiveMarketBox items={list} onSelect={(idx) => goto(idx)} />
       </div>
 
