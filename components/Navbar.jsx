@@ -13,51 +13,52 @@ export default function Navbar({ cartCount = 0, wishCount = 0, onCart = () => {}
 
   return (
     <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${scrolled ? "py-1" : "py-2"}`}>
-      <div className="mx-auto max-w-7xl px-4">
+      <div className="mx-auto max-w-7xl px-3 sm:px-4">
         <nav
-          className={`flex items-center gap-4 rounded-2xl px-3 py-1.5 transition-all duration-500 ${
-            scrolled ? "glass-strong shadow-frost" : "bg-transparent"
+          className={`flex items-center gap-2 rounded-2xl px-2.5 py-1.5 transition-all duration-500 sm:gap-4 sm:px-3 ${
+            scrolled ? "border border-slate-200 bg-white/95 shadow-sm backdrop-blur" : "bg-transparent"
           }`}
         >
           {/* logo */}
-          <a href="#home" className="flex shrink-0 items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-xl bg-lime-accent/15 text-sm text-lime-accent ring-1 ring-lime-accent/30">
+          <a href="#home" className="flex min-w-0 shrink items-center gap-2">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-lime-600 text-sm font-bold text-white">
               ⌘
             </span>
-            <span className="leading-tight">
-              <span className="font-display block text-sm font-bold text-white">Shalom Fish</span>
-              <span className="block text-[9px] tracking-widest text-aqua/70">FRESH FROM THE SEA</span>
+            <span className="min-w-0 leading-tight">
+              <span className="font-display block truncate text-sm font-bold text-slate-900">Shalom Fish</span>
+              <span className="block truncate text-[9px] tracking-widest text-slate-500">FRESH FROM THE SEA</span>
             </span>
           </a>
 
           <div className="flex-1" />
 
-          {/* right: wishlist + admin + cart */}
-          <div className="flex shrink-0 items-center gap-2">
+          {/* right: wishlist + admin + cart — all visible on mobile */}
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <button
               onClick={onWishlist}
               aria-label="Wishlist"
-              className="glass relative grid h-9 w-9 place-items-center rounded-xl text-sm text-lime-accent ring-1 ring-white/10 transition active:scale-90 hover:text-white"
+              className="tap-target relative grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-base text-lime-600 transition active:scale-90 hover:bg-slate-50"
             >
               ♥
               {wishCount > 0 && (
-                <span className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-lime-accent text-[9px] font-bold text-ink-900">
+                <span className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-lime-600 text-[9px] font-bold text-white">
                   {wishCount}
                 </span>
               )}
             </button>
             <a
               href="/admin"
-              className="glass hidden rounded-xl min-h-[38px] px-3.5 py-2 text-xs font-semibold active:scale-95 text-white/80 ring-1 ring-white/10 transition hover:text-lime-accent sm:inline-flex"
+              aria-label="Admin"
+              className="tap-target inline-flex min-h-[40px] items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition active:scale-95 hover:bg-slate-50"
             >
               Admin
             </a>
             <button
               onClick={onCart}
-              className="relative flex items-center gap-1.5 rounded-xl bg-lime-accent min-h-[38px] px-3.5 py-2 text-xs font-semibold active:scale-95 text-ink-900 shadow-glow-lime transition hover:brightness-110"
+              className="tap-target relative flex min-h-[40px] items-center gap-1.5 rounded-xl bg-lime-600 px-3.5 text-xs font-semibold text-white shadow-sm transition active:scale-95 hover:bg-lime-700"
             >
               Cart
-              <span className="grid h-4 w-4 place-items-center rounded-full bg-ink-900 text-[10px] text-lime-accent">
+              <span className="grid h-4 w-4 place-items-center rounded-full bg-white text-[10px] font-bold text-lime-700">
                 {cartCount}
               </span>
             </button>

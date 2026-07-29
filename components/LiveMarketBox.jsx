@@ -30,7 +30,7 @@ export default function LiveMarketBox({ items = products, onSelect }) {
         type="button"
         onClick={() => onSelect?.(idx)}
         aria-label={`Show ${p.name}`}
-        className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-ink-900/40 px-3 py-2 text-left backdrop-blur transition hover:-translate-y-0.5 hover:border-lime-accent/40"
+        className="flex items-center gap-2.5 rounded-2xl border border-slate-200 bg-white/95 px-3 py-2 text-left backdrop-blur transition hover:-translate-y-0.5 hover:border-lime-accent/40"
       >
         <span className="relative flex h-2 w-2 shrink-0">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime-accent opacity-75" />
@@ -42,12 +42,12 @@ export default function LiveMarketBox({ items = products, onSelect }) {
         <img
           src={p.image || "/products/seer.jpg"}
           alt={p.name}
-          className="h-8 w-8 shrink-0 rounded-lg object-cover ring-1 ring-white/10"
+          className="h-8 w-8 shrink-0 rounded-lg object-cover ring-1 ring-slate-200"
         />
 
         <div key={idx} className="detail-in min-w-0 leading-tight">
           <div className="flex items-center gap-1.5">
-            <p className="truncate text-xs font-semibold text-white">{p.name}</p>
+            <p className="truncate text-xs font-semibold text-slate-900">{p.name}</p>
             <span className="shrink-0 text-[9px] text-emerald-glow">● Available</span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -65,7 +65,7 @@ export default function LiveMarketBox({ items = products, onSelect }) {
         {items.map((_, k) => (
           <span
             key={k}
-            className={`h-1 rounded-full transition-all ${k === idx ? "w-2.5 bg-lime-accent" : "w-1 bg-white/25"}`}
+            className={`h-1 rounded-full transition-all ${k === idx ? "w-2.5 bg-lime-accent" : "w-1 bg-slate-300"}`}
           />
         ))}
       </div>

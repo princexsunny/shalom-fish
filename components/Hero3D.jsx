@@ -5,8 +5,10 @@ import { products, discountPct } from "@/lib/products";
 import { getData } from "@/lib/store";
 import LiveMarketBox from "./LiveMarketBox";
 
-const CARD_W = "clamp(220px, 66vw, 300px)";
-const CARD_H = "clamp(430px, 62vh, 500px)";
+// Fills the mobile screen (with margins) and caps out on tablet/desktop.
+// 360px → ~296px card, 430px → ~354px card, desktop → 320px.
+const CARD_W = "clamp(280px, 82vw, 320px)";
+const CARD_H = "clamp(430px, 62vh, 510px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -78,9 +80,9 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
 
   const stockStatus = (id) => {
     const n = stock[id] !== undefined ? stock[id] : 20;
-    if (n <= 0) return { t: "Out of stock", c: "bg-red-400/15 text-red-300" };
-    if (n < 8) return { t: "Low stock", c: "bg-discount/15 text-discount" };
-    return { t: "In stock", c: "bg-lime-accent/15 text-lime-accent" };
+    if (n <= 0) return { t: "Out of stock", c: "bg-red-50 text-red-600" };
+    if (n < 8) return { t: "Low stock", c: "bg-orange-50 text-orange-600" };
+    return { t: "In stock", c: "bg-lime-50 text-lime-700" };
   };
 
   const chipCats = useMemo(
@@ -173,46 +175,50 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
   }, [active, list]);
 
   // drag / swipe
+  // Drag works from ANYWHERE on the card (image or details). Pointer capture is
+  // taken only once a real swipe begins, so taps on buttons still land normally.
   const onDown = (e) => {
-    drag.current = { on: true, x: e.clientX, y: e.clientY, moved: false };
-    // keep receiving events even if the finger slides off the element
-    try {
-      e.currentTarget.setPointerCapture?.(e.pointerId);
-    } catch {}
+    drag.current = { on: true, x: e.clientX, y: e.clientY, moved: false, cap: false };
     if (typeof document !== "undefined") document.body.style.cursor = "grabbing";
   };
   const onMove = (e) => {
     if (!drag.current.on) return;
     const dx = e.clientX - drag.current.x;
     const dy = e.clientY - drag.current.y;
-    // ignore mostly-vertical gestures so the page can still be scrolled
+    // ignore mostly-vertical gestures
     if (Math.abs(dy) > Math.abs(dx) * 1.5 && Math.abs(dy) > 24) return;
-    // touch gets a shorter threshold — a 72px swipe is a long way on a phone
+    // touch gets a shorter threshold — 72px is a long swipe on a phone
     const threshold = e.pointerType === "touch" ? 46 : 72;
-    if (dx > threshold) {
-      prev();
-      drag.current.x = e.clientX;
-      drag.current.y = e.clientY;
-      drag.current.moved = true;
-    } else if (dx < -threshold) {
-      next();
+    if (Math.abs(dx) > threshold) {
+      if (!drag.current.cap) {
+        try {
+          e.currentTarget.setPointerCapture?.(e.pointerId);
+          drag.current.cap = true;
+        } catch {}
+      }
+      if (dx > 0) prev();
+      else next();
       drag.current.x = e.clientX;
       drag.current.y = e.clientY;
       drag.current.moved = true;
     }
   };
   const onUp = (e) => {
+    if (drag.current.cap) {
+      try {
+        e?.currentTarget?.releasePointerCapture?.(e.pointerId);
+      } catch {}
+    }
     drag.current.on = false;
-    try {
-      e?.currentTarget?.releasePointerCapture?.(e.pointerId);
-    } catch {}
+    drag.current.cap = false;
     if (typeof document !== "undefined") document.body.style.cursor = "";
   };
 
   const cardStyle = (pos) => {
     const a = Math.abs(pos);
     const isA = pos === 0;
-    const x = pos * 205;
+    // offset scales with the card so neighbours never overlap on small screens
+    const x = `calc(var(--cardW) * ${(pos * 0.66).toFixed(3)})`;
     const z = isA ? 55 : -a * 170;
     const ry = Math.max(-46, Math.min(46, -pos * 33));
     const s = isA ? 1 : Math.max(0.8, 1 - a * 0.1);
@@ -220,7 +226,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
     return {
       width: CARD_W,
       height: CARD_H,
-      transform: `translate(-50%, -50%) translateX(${x}px) translateZ(${z}px) rotateY(${ry}deg) scale(${s})`,
+      transform: `translate(-50%, -50%) translateX(${x}) translateZ(${z}px) rotateY(${ry}deg) scale(${s})`,
       filter: isA ? "none" : `blur(${Math.min(2.5, 0.4 + a * 0.9)}px) brightness(0.88)`,
       opacity: hidden ? 0 : 1,
       zIndex: 100 - Math.round(a * 10),
@@ -231,7 +237,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
   return (
     <section id="home" className="relative h-[100svh] w-full overflow-hidden">
       {/* ambient wash */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_-10%,#0d3c33_0%,#062f27_45%,#021b17_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_-10%,#f0fdf4_0%,#f8fafc_45%,#ffffff_100%)]" />
       <div className="pointer-events-none absolute -left-40 top-1/3 h-[32rem] w-[32rem] rounded-full bg-emerald-glow/[0.08] blur-[150px]" />
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-lime-accent/[0.05] blur-[150px]" />
 
@@ -250,12 +256,12 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                   className={`grid h-9 w-9 place-items-center rounded-full text-sm ring-1 transition ${
                     on
                       ? "chip-active bg-lime-accent text-ink-900 ring-lime-accent"
-                      : "glass text-lime-accent ring-white/10 hover:text-white"
+                      : "glass text-lime-accent ring-slate-200 hover:text-slate-900"
                   }`}
                 >
                   {c.icon}
                 </span>
-                <span className={`text-center text-[8px] leading-tight ${on ? "text-lime-accent" : "text-white/45"}`}>
+                <span className={`text-center text-[8px] leading-tight ${on ? "text-lime-accent" : "text-slate-400"}`}>
                   {c.label}
                 </span>
               </button>
@@ -291,7 +297,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
           return (
             <article
               key={p.id}
-              className={`slide-card glass overflow-hidden rounded-4xl shadow-frost ${isA ? "is-active" : ""} ${
+              className={`slide-card overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-xl ${isA ? "is-active" : ""} ${
                 isA && p.special ? "super-offer-card super-glow" : ""
               }`}
               style={cardStyle(pos)}
@@ -312,7 +318,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                   draggable="false"
                   className="h-full w-full object-cover"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-900/80 via-transparent to-transparent" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/70 via-transparent to-transparent" />
 
                 {isA && (
                   <>
@@ -342,7 +348,6 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                     <button
                       type="button"
                       aria-label="Add to wishlist"
-                      onPointerDown={(e) => e.stopPropagation()}
                       onClick={(e) => {
                         e.stopPropagation();
                         onToggleWish(p);
@@ -350,7 +355,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                       className={`tap-target absolute bottom-3 right-3 z-10 grid h-11 w-11 place-items-center rounded-full text-lg ring-1 backdrop-blur transition active:scale-90 ${
                         wishlist[p.id]
                           ? "bg-lime-accent text-ink-900 ring-lime-accent"
-                          : "bg-ink-900/40 text-lime-accent ring-white/15 hover:text-white"
+                          : "bg-white/90 text-lime-600 ring-slate-200 hover:bg-white"
                       }`}
                     >
                       {wishlist[p.id] ? "♥" : "♡"}
@@ -359,18 +364,15 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                 )}
 
                 {!isA && (
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-900/90 to-transparent p-3 pt-8 text-center">
-                    <span className="font-display text-base font-bold text-lime-accent">{p.name}</span>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/85 to-transparent p-3 pt-8 text-center">
+                    <span className="font-display text-base font-bold text-slate-900">{p.name}</span>
                   </div>
                 )}
               </div>
 
               {/* details (lower) */}
               {isA && (
-                <div
-                  onPointerDown={(e) => e.stopPropagation()}
-                  className="flex min-h-0 flex-1 flex-col justify-between gap-1 bg-ink-900/80 px-4 py-2.5 backdrop-blur-xl"
-                >
+                <div className="flex min-h-0 flex-1 flex-col justify-between gap-1 border-t border-slate-100 bg-white px-4 py-2.5">
                   <div>
                     <p data-rv className="text-[10px] uppercase tracking-[0.22em] text-aqua/70">
                       {p.category}
@@ -378,7 +380,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                     <h3 data-rv className="font-display text-xl font-extrabold leading-tight text-gradient">
                       {p.name}
                       {p.local && p.local !== "—" && (
-                        <span className="ml-1 align-middle text-xs font-medium text-white/40">· {p.local}</span>
+                        <span className="ml-1 align-middle text-xs font-medium text-slate-400">· {p.local}</span>
                       )}
                     </h3>
                     <div data-rv className="mt-1 flex items-center gap-1.5 text-[11px]">
@@ -389,8 +391,8 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                           </span>
                         ))}
                       </span>
-                      <span className="text-white/70">{p.rating.toFixed(1)}</span>
-                      <span className="text-white/30">({p.reviews})</span>
+                      <span className="text-slate-600">{p.rating.toFixed(1)}</span>
+                      <span className="text-slate-300">({p.reviews})</span>
                       <span className={`ml-auto rounded-full px-2 py-0.5 text-[9px] font-semibold ${stk.c}`}>
                         {stk.t}
                       </span>
@@ -410,8 +412,8 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                           }}
                           className={`min-h-[36px] rounded-xl px-4 py-1.5 text-xs font-semibold ring-1 transition active:scale-95 ${
                             k === weightIdx
-                              ? "bg-lime-accent/15 text-lime-accent ring-lime-accent"
-                              : "bg-white/5 text-white/70 ring-white/10 hover:text-white"
+                              ? "bg-lime-50 text-lime-700 ring-lime-accent"
+                              : "bg-slate-50 text-slate-600 ring-slate-200 hover:text-slate-900"
                           }`}
                         >
                           {wt.label}
@@ -423,9 +425,9 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                       <span data-price className="text-xl font-bold text-lime-accent">
                         ₹{Math.round(p.price * WEIGHTS[weightIdx].mult)}
                       </span>
-                      <span className="text-[11px] text-white/50">/{WEIGHTS[weightIdx].label}</span>
+                      <span className="text-[11px] text-slate-500">/{WEIGHTS[weightIdx].label}</span>
                       {p.oldPrice > p.price && (
-                        <span className="ml-1 text-sm text-white/40 line-through">
+                        <span className="ml-1 text-sm text-slate-400 line-through">
                           ₹{Math.round(p.oldPrice * WEIGHTS[weightIdx].mult)}
                         </span>
                       )}
@@ -476,24 +478,24 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       <button
         onClick={prev}
         aria-label="Previous product"
-        className="glass absolute left-3 top-1/2 tap-target z-30 flex h-11 w-11 -translate-y-1/2 flex-col items-center justify-center rounded-full text-white/80 shadow-frost ring-1 ring-lime-accent/40 transition active:scale-95 hover:text-lime-accent"
+        className="glass absolute left-3 top-1/2 tap-target z-30 hidden h-11 w-11 -translate-y-1/2 flex-col items-center justify-center rounded-full text-slate-700 shadow-frost ring-1 ring-lime-accent/40 transition active:scale-95 hover:text-lime-accent md:flex"
       >
         <span className="text-[9px] leading-none">‹</span>
         <span className="text-[9px] font-bold leading-none text-lime-accent">
           {String(active + 1).padStart(2, "0")}
         </span>
-        <span className="text-[6px] leading-none text-white/45">/{String(N).padStart(2, "0")}</span>
+        <span className="text-[6px] leading-none text-slate-400">/{String(N).padStart(2, "0")}</span>
       </button>
       <button
         onClick={next}
         aria-label="Next product"
-        className="glass absolute right-3 top-1/2 tap-target z-30 flex h-11 w-11 -translate-y-1/2 flex-col items-center justify-center rounded-full text-white/80 shadow-frost ring-1 ring-lime-accent/40 transition active:scale-95 hover:text-lime-accent"
+        className="glass absolute right-3 top-1/2 tap-target z-30 hidden h-11 w-11 -translate-y-1/2 flex-col items-center justify-center rounded-full text-slate-700 shadow-frost ring-1 ring-lime-accent/40 transition active:scale-95 hover:text-lime-accent md:flex"
       >
         <span className="text-[9px] leading-none">›</span>
         <span className="text-[9px] font-bold leading-none text-lime-accent">
           {String((((active + 1) % N) + 1)).padStart(2, "0")}
         </span>
-        <span className="text-[6px] leading-none text-white/45">/{String(N).padStart(2, "0")}</span>
+        <span className="text-[6px] leading-none text-slate-400">/{String(N).padStart(2, "0")}</span>
       </button>
 
       {/* live fish market — bottom left */}

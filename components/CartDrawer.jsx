@@ -32,23 +32,23 @@ export default function CartDrawer({ open, onClose, cart, setCart }) {
     <>
       <div
         onClick={onClose}
-        className={`fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
       <aside
-        className={`fixed right-0 top-0 z-[70] flex h-full w-full max-w-md flex-col bg-ink-900/95 ring-1 ring-white/10 backdrop-blur-xl transition-transform duration-500 ${
+        className={`fixed right-0 top-0 z-[70] flex h-full w-full max-w-md flex-col bg-white ring-1 ring-slate-200 shadow-2xl transition-transform duration-500 ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <header className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <h2 className="font-display text-lg font-bold text-white">
-            Your Cart <span className="text-sm font-normal text-white/40">({cart.reduce((n, x) => n + x.qty, 0)})</span>
+        <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+          <h2 className="font-display text-lg font-bold text-slate-900">
+            Your Cart <span className="text-sm font-normal text-slate-400">({cart.reduce((n, x) => n + x.qty, 0)})</span>
           </h2>
           <button
             onClick={onClose}
             aria-label="Close cart"
-            className="grid h-9 w-9 place-items-center rounded-full bg-white/5 text-white/70 ring-1 ring-white/10 hover:text-lime-accent"
+            className="grid h-9 w-9 place-items-center rounded-full bg-slate-50 text-slate-600 ring-1 ring-slate-200 hover:text-lime-accent"
           >
             ×
           </button>
@@ -56,7 +56,7 @@ export default function CartDrawer({ open, onClose, cart, setCart }) {
 
         <div className="flex-1 overscroll-contain overflow-y-auto px-5 py-4">
           {cart.length === 0 ? (
-            <div className="grid h-full place-items-center text-center text-white/40">
+            <div className="grid h-full place-items-center text-center text-slate-400">
               <div>
                 <p className="text-4xl">🛒</p>
                 <p className="mt-3 text-sm">Your cart is empty</p>
@@ -68,9 +68,9 @@ export default function CartDrawer({ open, onClose, cart, setCart }) {
                 <div key={x.key} className="glass rounded-2xl p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-white">{x.name}</p>
-                      <p className="text-xs text-white/50">{x.weight}</p>
-                      <p className="mt-1 text-[11px] text-white/45">
+                      <p className="truncate text-sm font-semibold text-slate-900">{x.name}</p>
+                      <p className="text-xs text-slate-500">{x.weight}</p>
+                      <p className="mt-1 text-[11px] text-slate-400">
                         ₹{x.price} × {x.qty}
                         {x.cleaning ? ` + ₹${CLEAN_FEE} clean × ${x.qty}` : ""} ={" "}
                         <span className="font-semibold text-lime-accent">
@@ -79,15 +79,15 @@ export default function CartDrawer({ open, onClose, cart, setCart }) {
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-1.5">
-                      <button onClick={() => remove(x.key)} className="text-xs text-white/40 hover:text-discount">
+                      <button onClick={() => remove(x.key)} className="text-xs text-slate-400 hover:text-discount">
                         Remove
                       </button>
-                      <div className="flex items-center gap-2 rounded-full bg-white/5 px-1 ring-1 ring-white/10">
-                        <button onClick={() => dec(x.key)} className="grid h-6 w-6 place-items-center text-white/70 hover:text-lime-accent">
+                      <div className="flex items-center gap-2 rounded-full bg-slate-50 px-1 ring-1 ring-slate-200">
+                        <button onClick={() => dec(x.key)} className="grid h-6 w-6 place-items-center text-slate-600 hover:text-lime-accent">
                           −
                         </button>
-                        <span className="w-4 text-center text-sm text-white">{x.qty}</span>
-                        <button onClick={() => inc(x.key)} className="grid h-6 w-6 place-items-center text-white/70 hover:text-lime-accent">
+                        <span className="w-4 text-center text-sm text-slate-900">{x.qty}</span>
+                        <button onClick={() => inc(x.key)} className="grid h-6 w-6 place-items-center text-slate-600 hover:text-lime-accent">
                           +
                         </button>
                       </div>
@@ -100,18 +100,18 @@ export default function CartDrawer({ open, onClose, cart, setCart }) {
                     className={`mt-2 flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-[11px] ring-1 transition ${
                       x.cleaning
                         ? "bg-lime-accent/15 text-lime-accent ring-lime-accent"
-                        : "bg-white/5 text-white/60 ring-white/10 hover:text-white"
+                        : "bg-slate-50 text-slate-500 ring-slate-200 hover:text-slate-900"
                     }`}
                   >
                     <span
                       className={`grid h-4 w-4 place-items-center rounded text-[10px] ${
-                        x.cleaning ? "bg-lime-accent text-ink-900" : "ring-1 ring-white/30"
+                        x.cleaning ? "bg-lime-accent text-ink-900" : "ring-1 ring-slate-300"
                       }`}
                     >
                       {x.cleaning ? "✓" : ""}
                     </span>
                     Clean &amp; cut
-                    <span className="ml-auto text-white/50">+₹{CLEAN_FEE}</span>
+                    <span className="ml-auto text-slate-500">+₹{CLEAN_FEE}</span>
                   </button>
                 </div>
               ))}
@@ -120,24 +120,24 @@ export default function CartDrawer({ open, onClose, cart, setCart }) {
         </div>
 
         {cart.length > 0 && (
-          <footer className="border-t border-white/10 px-5 py-4">
+          <footer className="border-t border-slate-200 px-5 py-4">
             <div className="space-y-1.5 text-sm">
-              <div className="flex justify-between text-white/70">
+              <div className="flex justify-between text-slate-600">
                 <span>Subtotal</span>
                 <span>₹{itemsTotal}</span>
               </div>
-              <div className="flex justify-between text-white/70">
+              <div className="flex justify-between text-slate-600">
                 <span>GST (18%)</span>
                 <span>₹{gst}</span>
               </div>
-              <div className="flex justify-between text-white/70">
+              <div className="flex justify-between text-slate-600">
                 <span>Delivery</span>
                 <span className={delivery === 0 ? "text-lime-accent" : ""}>{delivery === 0 ? "FREE" : `₹${delivery}`}</span>
               </div>
               {itemsTotal < FREE_ABOVE && (
                 <p className="text-[11px] text-aqua/70">Add ₹{FREE_ABOVE - itemsTotal} more for free delivery</p>
               )}
-              <div className="mt-2 flex justify-between border-t border-white/10 pt-2 text-base font-bold text-white">
+              <div className="mt-2 flex justify-between border-t border-slate-200 pt-2 text-base font-bold text-slate-900">
                 <span>Total</span>
                 <span className="text-lime-accent">₹{total}</span>
               </div>

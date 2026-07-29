@@ -360,12 +360,12 @@ export default function AdminPage() {
   }
 
   const inputCls =
-    "w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/10 outline-none placeholder:text-white/30 focus:ring-lime-accent/50";
+    "w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-900 ring-1 ring-slate-200 outline-none placeholder:text-slate-300 focus:ring-lime-accent/50";
 
   // ---- login gate ----
   if (!authed) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[radial-gradient(120%_90%_at_50%_-10%,#0d3c33,#021b17)] px-4 text-white">
+      <main className="grid min-h-screen place-items-center bg-slate-50 px-4 text-slate-900">
         <form onSubmit={login} className="glass w-full max-w-sm rounded-4xl p-8 shadow-frost">
           <div className="mb-6 flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-lime-accent/15 text-lg text-lime-accent ring-1 ring-lime-accent/30">
@@ -377,7 +377,7 @@ export default function AdminPage() {
             </div>
           </div>
           <label className="block">
-            <span className="mb-1.5 block text-xs text-white/60">Password</span>
+            <span className="mb-1.5 block text-xs text-slate-500">Password</span>
             <input
               type="password"
               autoFocus
@@ -397,8 +397,8 @@ export default function AdminPage() {
           >
             Enter
           </button>
-          <p className="mt-4 text-center text-[11px] text-white/30">Default password: shalom123</p>
-          <a href="/" className="mt-2 block text-center text-xs text-white/50 hover:text-lime-accent">
+          <p className="mt-4 text-center text-[11px] text-slate-300">Default password: shalom123</p>
+          <a href="/" className="mt-2 block text-center text-xs text-slate-500 hover:text-lime-accent">
             ← Back to store
           </a>
         </form>
@@ -407,7 +407,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100">
+    <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900">
       <div className="mx-auto max-w-5xl">
         {/* header */}
         <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -428,13 +428,13 @@ export default function AdminPage() {
           <div className="flex items-center gap-2">
             <a
               href="/"
-              className="glass rounded-2xl px-4 py-2.5 text-sm text-white/80 ring-1 ring-white/10 transition hover:text-lime-accent"
+              className="glass rounded-2xl px-4 py-2.5 text-sm text-slate-700 ring-1 ring-slate-200 transition hover:text-lime-accent"
             >
               ← Back to store
             </a>
             <button
               onClick={logout}
-              className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm text-white/70 ring-1 ring-white/10 transition hover:text-discount"
+              className="rounded-2xl bg-slate-50 px-4 py-2.5 text-sm text-slate-600 ring-1 ring-slate-200 transition hover:text-discount"
             >
               Logout
             </button>
@@ -444,14 +444,14 @@ export default function AdminPage() {
         {/* statistics */}
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {[
-            { l: "Products", v: allProducts.length, c: "text-white" },
+            { l: "Products", v: allProducts.length, c: "text-slate-900" },
             { l: "In stock", v: stats.inStock, c: "text-emerald-300" },
             { l: "Low stock", v: stats.low, c: "text-amber-300" },
             { l: "Out", v: stats.out, c: "text-red-300" },
             { l: "Inv. value", v: "₹" + stats.value.toLocaleString("en-IN"), c: "text-lime-accent" },
             { l: "Offers", v: offers.length, c: "text-aqua" },
           ].map((s) => (
-            <div key={s.l} className="rounded-2xl bg-slate-900 p-4 ring-1 ring-white/10">
+            <div key={s.l} className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
               <p className={`truncate text-xl font-bold ${s.c}`}>{s.v}</p>
               <p className="mt-0.5 text-[11px] uppercase tracking-widest text-slate-400">{s.l}</p>
             </div>
@@ -459,7 +459,7 @@ export default function AdminPage() {
         </div>
 
         {/* tabs */}
-        <div className="mb-6 flex gap-1 overflow-x-auto rounded-2xl bg-white/5 p-1 ring-1 ring-white/10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="mb-6 flex gap-1 overflow-x-auto rounded-2xl bg-slate-50 p-1 ring-1 ring-slate-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {[
             { id: "add", label: editId ? "Edit Product" : "Add Product" },
             { id: "inventory", label: `Inventory (${allProducts.length})` },
@@ -472,7 +472,7 @@ export default function AdminPage() {
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition sm:px-5 ${
-                tab === t.id ? "bg-lime-accent text-ink-900" : "text-white/70 hover:text-white"
+                tab === t.id ? "bg-lime-accent text-ink-900" : "text-slate-600 hover:text-slate-900"
               }`}
             >
               {t.label}
@@ -490,7 +490,7 @@ export default function AdminPage() {
                   {editId ? "Edit product" : "Product details"}
                 </h2>
                 {editId && (
-                  <button type="button" onClick={cancelEdit} className="text-xs text-white/50 hover:text-discount">
+                  <button type="button" onClick={cancelEdit} className="text-xs text-slate-500 hover:text-discount">
                     Cancel edit
                   </button>
                 )}
@@ -498,17 +498,17 @@ export default function AdminPage() {
               <div className="grid gap-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="block">
-                    <span className="mb-1.5 block text-xs text-white/60">Product name *</span>
+                    <span className="mb-1.5 block text-xs text-slate-500">Product name *</span>
                     <input className={inputCls} value={form.name} onChange={field("name")} placeholder="Seer Fish" />
                   </label>
                   <label className="block">
-                    <span className="mb-1.5 block text-xs text-white/60">Local name</span>
+                    <span className="mb-1.5 block text-xs text-slate-500">Local name</span>
                     <input className={inputCls} value={form.local} onChange={field("local")} placeholder="Neymeen" />
                   </label>
                 </div>
 
                 <label className="block">
-                  <span className="mb-1.5 block text-xs text-white/60">Category</span>
+                  <span className="mb-1.5 block text-xs text-slate-500">Category</span>
                   <select className={inputCls} value={form.category} onChange={field("category")}>
                     {categories.map((c) => (
                       <option key={c} value={c} className="bg-ink-800">
@@ -520,46 +520,46 @@ export default function AdminPage() {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                   <label className="block">
-                    <span className="mb-1.5 block text-xs text-white/60">Price ₹ *</span>
+                    <span className="mb-1.5 block text-xs text-slate-500">Price ₹ *</span>
                     <input className={inputCls} type="number" value={form.price} onChange={field("price")} placeholder="899" />
                   </label>
                   <label className="block">
-                    <span className="mb-1.5 block text-xs text-white/60">Old price ₹</span>
+                    <span className="mb-1.5 block text-xs text-slate-500">Old price ₹</span>
                     <input className={inputCls} type="number" value={form.oldPrice} onChange={field("oldPrice")} placeholder="1099" />
                   </label>
                   <label className="block">
-                    <span className="mb-1.5 block text-xs text-white/60">Base unit</span>
+                    <span className="mb-1.5 block text-xs text-slate-500">Base unit</span>
                     <input className={inputCls} value={form.unit} onChange={field("unit")} placeholder="500 g" />
                   </label>
                 </div>
 
                 <label className="block">
-                  <span className="mb-1.5 block text-xs text-white/60">Stock (qty)</span>
+                  <span className="mb-1.5 block text-xs text-slate-500">Stock (qty)</span>
                   <input className={inputCls} type="number" value={form.stock} onChange={field("stock")} placeholder="25" />
                 </label>
 
                 <div className="flex gap-4">
-                  <label className="flex items-center gap-2 text-sm text-white/80">
+                  <label className="flex items-center gap-2 text-sm text-slate-700">
                     <input type="checkbox" checked={form.premium} onChange={field("premium")} className="h-4 w-4 accent-lime-accent" />
                     Premium
                   </label>
-                  <label className="flex items-center gap-2 text-sm text-white/80">
+                  <label className="flex items-center gap-2 text-sm text-slate-700">
                     <input type="checkbox" checked={form.todaysCatch} onChange={field("todaysCatch")} className="h-4 w-4 accent-lime-accent" />
                     Today&apos;s Catch
                   </label>
                 </div>
 
                 {/* availability & special */}
-                <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+                <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
                   <div className="mb-3 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-white">Availability &amp; Super Offer</span>
-                    <label className="flex items-center gap-2 text-xs text-white/80">
+                    <span className="text-sm font-semibold text-slate-900">Availability &amp; Super Offer</span>
+                    <label className="flex items-center gap-2 text-xs text-slate-700">
                       <input type="checkbox" checked={form.special} onChange={field("special")} className="h-4 w-4 accent-lime-accent" />
                       ★ Super Offer
                     </label>
                   </div>
 
-                  <div className="mb-3 inline-flex rounded-xl bg-white/5 p-1 ring-1 ring-white/10">
+                  <div className="mb-3 inline-flex rounded-xl bg-slate-50 p-1 ring-1 ring-slate-200">
                     {[
                       { id: "24x7", label: "24 × 7" },
                       { id: "scheduled", label: "Scheduled" },
@@ -569,7 +569,7 @@ export default function AdminPage() {
                         type="button"
                         onClick={() => setForm((f) => ({ ...f, availMode: m.id }))}
                         className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                          form.availMode === m.id ? "bg-lime-accent text-ink-900" : "text-white/60 hover:text-white"
+                          form.availMode === m.id ? "bg-lime-accent text-ink-900" : "text-slate-500 hover:text-slate-900"
                         }`}
                       >
                         {m.label}
@@ -580,7 +580,7 @@ export default function AdminPage() {
                   {form.availMode === "scheduled" && (
                     <div className="grid gap-3">
                       <div>
-                        <span className="mb-1.5 block text-xs text-white/60">Days</span>
+                        <span className="mb-1.5 block text-xs text-slate-500">Days</span>
                         <div className="flex flex-wrap gap-1">
                           {DAYS.map((d) => {
                             const on = form.days.includes(d);
@@ -592,7 +592,7 @@ export default function AdminPage() {
                                 className={`rounded-lg px-2 py-1 text-[11px] ring-1 transition ${
                                   on
                                     ? "bg-lime-accent/15 text-lime-accent ring-lime-accent"
-                                    : "bg-white/5 text-white/60 ring-white/10"
+                                    : "bg-slate-50 text-slate-500 ring-slate-200"
                                 }`}
                               >
                                 {d}
@@ -603,16 +603,16 @@ export default function AdminPage() {
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <label className="block">
-                          <span className="mb-1.5 block text-xs text-white/60">From</span>
+                          <span className="mb-1.5 block text-xs text-slate-500">From</span>
                           <input type="time" className={inputCls} value={form.timeFrom} onChange={field("timeFrom")} />
                         </label>
                         <label className="block">
-                          <span className="mb-1.5 block text-xs text-white/60">To</span>
+                          <span className="mb-1.5 block text-xs text-slate-500">To</span>
                           <input type="time" className={inputCls} value={form.timeTo} onChange={field("timeTo")} />
                         </label>
                       </div>
                       <label className="block">
-                        <span className="mb-1.5 block text-xs text-white/60">Season</span>
+                        <span className="mb-1.5 block text-xs text-slate-500">Season</span>
                         <select className={inputCls} value={form.season} onChange={field("season")}>
                           {SEASONS.map((s) => (
                             <option key={s} value={s} className="bg-ink-800">
@@ -630,11 +630,11 @@ export default function AdminPage() {
             {/* right: images */}
             <div className="glass rounded-4xl p-6 shadow-frost">
               <h2 className="font-display mb-4 text-lg font-semibold">
-                Images <span className="text-sm font-normal text-white/40">(multiple)</span>
+                Images <span className="text-sm font-normal text-slate-400">(multiple)</span>
               </h2>
 
               {/* auto-sliding preview */}
-              <div className="relative mb-4 aspect-video overflow-hidden rounded-3xl bg-white/5 ring-1 ring-white/10">
+              <div className="relative mb-4 aspect-video overflow-hidden rounded-3xl bg-slate-50 ring-1 ring-slate-200">
                 {images.length ? (
                   <>
                     {images.map((im, i) => (
@@ -651,7 +651,7 @@ export default function AdminPage() {
                       {images.map((_, i) => (
                         <span
                           key={i}
-                          className={`h-1.5 rounded-full transition-all ${i === idx ? "w-5 bg-lime-accent" : "w-1.5 bg-white/40"}`}
+                          className={`h-1.5 rounded-full transition-all ${i === idx ? "w-5 bg-lime-accent" : "w-1.5 bg-slate-300"}`}
                         />
                       ))}
                     </div>
@@ -660,7 +660,7 @@ export default function AdminPage() {
                     </span>
                   </>
                 ) : (
-                  <div className="grid h-full place-items-center text-sm text-white/40">Preview appears here</div>
+                  <div className="grid h-full place-items-center text-sm text-slate-400">Preview appears here</div>
                 )}
               </div>
 
@@ -668,7 +668,7 @@ export default function AdminPage() {
                 type="button"
                 disabled={uploading}
                 onClick={() => fileRef.current?.click()}
-                className="w-full rounded-2xl border border-dashed border-white/20 bg-white/5 py-4 text-sm text-white/70 transition hover:border-lime-accent/50 hover:text-lime-accent disabled:opacity-60"
+                className="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-4 text-sm text-slate-600 transition hover:border-lime-accent/50 hover:text-lime-accent disabled:opacity-60"
               >
                 {uploading ? "Uploading…" : "+ Upload images"}
               </button>
@@ -678,13 +678,13 @@ export default function AdminPage() {
               {images.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {images.map((im, i) => (
-                    <div key={i} className="relative h-16 w-16 overflow-hidden rounded-xl ring-1 ring-white/10">
+                    <div key={i} className="relative h-16 w-16 overflow-hidden rounded-xl ring-1 ring-slate-200">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={im.url} alt="" className="h-full w-full object-cover" />
                       <button
                         type="button"
                         onClick={() => removeImg(i)}
-                        className="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-ink-900/80 text-xs text-white hover:text-discount"
+                        className="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-ink-900/80 text-xs text-slate-900 hover:text-discount"
                       >
                         ×
                       </button>
@@ -712,15 +712,15 @@ export default function AdminPage() {
                 value={invSearch}
                 onChange={(e) => setInvSearch(e.target.value)}
                 placeholder="Search products…"
-                className="min-w-[160px] flex-1 rounded-2xl bg-slate-900 px-4 py-2.5 text-sm text-slate-100 outline-none ring-1 ring-white/10 placeholder:text-slate-500 focus:ring-lime-accent/50"
+                className="min-w-[160px] flex-1 rounded-2xl bg-white px-4 py-2.5 text-sm text-slate-900 outline-none ring-1 ring-slate-200 placeholder:text-slate-500 focus:ring-lime-accent/50"
               />
               <select
                 value={invStatus}
                 onChange={(e) => setInvStatus(e.target.value)}
-                className="rounded-2xl bg-slate-900 px-3 py-2.5 text-sm outline-none ring-1 ring-white/10"
+                className="rounded-2xl bg-white px-3 py-2.5 text-sm outline-none ring-1 ring-slate-200"
               >
                 {["All", "In stock", "Low", "Out"].map((o) => (
-                  <option key={o} value={o} className="bg-slate-900">
+                  <option key={o} value={o} className="bg-white">
                     {o}
                   </option>
                 ))}
@@ -728,13 +728,13 @@ export default function AdminPage() {
               <select
                 value={invCat}
                 onChange={(e) => setInvCat(e.target.value)}
-                className="rounded-2xl bg-slate-900 px-3 py-2.5 text-sm outline-none ring-1 ring-white/10"
+                className="rounded-2xl bg-white px-3 py-2.5 text-sm outline-none ring-1 ring-slate-200"
               >
-                <option value="All" className="bg-slate-900">
+                <option value="All" className="bg-white">
                   All categories
                 </option>
                 {categories.map((c) => (
-                  <option key={c} value={c} className="bg-slate-900">
+                  <option key={c} value={c} className="bg-white">
                     {c}
                   </option>
                 ))}
@@ -742,16 +742,16 @@ export default function AdminPage() {
               <select
                 value={invSort}
                 onChange={(e) => setInvSort(e.target.value)}
-                className="rounded-2xl bg-slate-900 px-3 py-2.5 text-sm outline-none ring-1 ring-white/10"
+                className="rounded-2xl bg-white px-3 py-2.5 text-sm outline-none ring-1 ring-slate-200"
               >
-                <option value="name" className="bg-slate-900">Sort: Name</option>
-                <option value="price" className="bg-slate-900">Sort: Price</option>
-                <option value="stock" className="bg-slate-900">Sort: Stock</option>
+                <option value="name" className="bg-white">Sort: Name</option>
+                <option value="price" className="bg-white">Sort: Price</option>
+                <option value="stock" className="bg-white">Sort: Stock</option>
               </select>
             </div>
 
             <div className="glass overflow-hidden rounded-4xl shadow-frost">
-            <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-white/10 px-5 py-3 text-[11px] uppercase tracking-widest text-white/40 sm:grid-cols-[1.6fr_1fr_auto_auto_auto]">
+            <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-slate-200 px-5 py-3 text-[11px] uppercase tracking-widest text-slate-400 sm:grid-cols-[1.6fr_1fr_auto_auto_auto]">
               <span>Product</span>
               <span className="hidden sm:block">Category</span>
               <span>Price</span>
@@ -765,48 +765,48 @@ export default function AdminPage() {
                 return (
                   <div
                     key={p.id}
-                    className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-white/5 px-5 py-3 text-sm sm:grid-cols-[1.6fr_1fr_auto_auto_auto]"
+                    className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-slate-100 px-5 py-3 text-sm sm:grid-cols-[1.6fr_1fr_auto_auto_auto]"
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={p.image || "/products/seer.jpg"}
                         alt={p.name}
-                        className="h-10 w-10 shrink-0 rounded-xl object-cover ring-1 ring-white/10"
+                        className="h-10 w-10 shrink-0 rounded-xl object-cover ring-1 ring-slate-200"
                       />
                       <div className="min-w-0">
-                        <p className="truncate font-medium text-white">
+                        <p className="truncate font-medium text-slate-900">
                           {p.special && <span className="mr-1 text-lime-accent">★</span>}
                           {p.name}
                         </p>
-                        <p className="truncate text-xs text-white/40">
+                        <p className="truncate text-xs text-slate-400">
                           {p.schedule?.mode === "scheduled"
                             ? `⏱ ${p.schedule.from}–${p.schedule.to}`
                             : p.local}
                         </p>
                       </div>
                     </div>
-                    <span className="hidden text-white/60 sm:block">{p.category}</span>
+                    <span className="hidden text-slate-500 sm:block">{p.category}</span>
                     <span className="font-semibold text-lime-accent">₹{p.price}</span>
                     <input
                       type="number"
                       value={n}
                       onChange={(e) => setStockFor(p.id, e.target.value)}
-                      className="w-16 rounded-lg bg-white/5 px-2 py-1 text-center text-white ring-1 ring-white/10 outline-none focus:ring-lime-accent/50"
+                      className="w-16 rounded-lg bg-slate-50 px-2 py-1 text-center text-slate-900 ring-1 ring-slate-200 outline-none focus:ring-lime-accent/50"
                     />
                     <div className="flex items-center gap-2">
                       <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${st.c}`}>{st.t}</span>
                       <button
                         onClick={() => startEdit(p)}
                         aria-label="Edit"
-                        className="text-white/40 transition hover:text-lime-accent"
+                        className="text-slate-400 transition hover:text-lime-accent"
                       >
                         ✎
                       </button>
                       <button
                         onClick={() => delProduct(p)}
                         aria-label="Delete"
-                        className="text-white/40 transition hover:text-discount"
+                        className="text-slate-400 transition hover:text-discount"
                       >
                         🗑
                       </button>
@@ -815,7 +815,7 @@ export default function AdminPage() {
                 );
               })}
               {invFiltered.length === 0 && (
-                <p className="px-5 py-10 text-center text-sm text-white/40">No products match your filters.</p>
+                <p className="px-5 py-10 text-center text-sm text-slate-400">No products match your filters.</p>
               )}
             </div>
             </div>
@@ -849,15 +849,15 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => delCategory(i)}
                     aria-label="Delete category"
-                    className="shrink-0 text-white/40 hover:text-discount"
+                    className="shrink-0 text-slate-400 hover:text-discount"
                   >
                     🗑
                   </button>
                 </div>
               ))}
-              {categories.length === 0 && <p className="text-sm text-white/40">No categories.</p>}
+              {categories.length === 0 && <p className="text-sm text-slate-400">No categories.</p>}
             </div>
-            <p className="mt-4 text-xs text-white/40">Used in the Add / Edit product category list.</p>
+            <p className="mt-4 text-xs text-slate-400">Used in the Add / Edit product category list.</p>
           </div>
         )}
 
@@ -868,7 +868,7 @@ export default function AdminPage() {
               <h2 className="font-display mb-4 text-lg font-semibold">New offer</h2>
               <div className="grid gap-4">
                 <label className="block">
-                  <span className="mb-1.5 block text-xs text-white/60">Title</span>
+                  <span className="mb-1.5 block text-xs text-slate-500">Title</span>
                   <input
                     className={inputCls}
                     value={offerForm.title}
@@ -878,7 +878,7 @@ export default function AdminPage() {
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <label className="block">
-                    <span className="mb-1.5 block text-xs text-white/60">Discount %</span>
+                    <span className="mb-1.5 block text-xs text-slate-500">Discount %</span>
                     <input
                       type="number"
                       className={inputCls}
@@ -888,7 +888,7 @@ export default function AdminPage() {
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-1.5 block text-xs text-white/60">Code</span>
+                    <span className="mb-1.5 block text-xs text-slate-500">Code</span>
                     <input
                       className={inputCls}
                       value={offerForm.code}
@@ -910,12 +910,12 @@ export default function AdminPage() {
               <h2 className="font-display mb-4 text-lg font-semibold">Offers ({offers.length})</h2>
               <div className="space-y-2">
                 {offers.map((o) => (
-                  <div key={o.id} className="flex items-center justify-between rounded-2xl bg-white/5 p-3 ring-1 ring-white/10">
+                  <div key={o.id} className="flex items-center justify-between rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-white">
+                      <p className="truncate text-sm font-semibold text-slate-900">
                         {o.title} <span className="text-lime-accent">{o.pct}%</span>
                       </p>
-                      {o.code && <p className="text-xs text-white/40">Code: {o.code}</p>}
+                      {o.code && <p className="text-xs text-slate-400">Code: {o.code}</p>}
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <button
@@ -924,18 +924,18 @@ export default function AdminPage() {
                         className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${
                           o.active
                             ? "bg-lime-accent/10 text-lime-accent ring-lime-accent/30"
-                            : "bg-white/5 text-white/40 ring-white/10"
+                            : "bg-slate-50 text-slate-400 ring-slate-200"
                         }`}
                       >
                         {o.active ? "Active" : "Off"}
                       </button>
-                      <button type="button" onClick={() => delOffer(o.id)} className="text-white/40 hover:text-discount">
+                      <button type="button" onClick={() => delOffer(o.id)} className="text-slate-400 hover:text-discount">
                         🗑
                       </button>
                     </div>
                   </div>
                 ))}
-                {offers.length === 0 && <p className="text-sm text-white/40">No offers yet.</p>}
+                {offers.length === 0 && <p className="text-sm text-slate-400">No offers yet.</p>}
               </div>
             </div>
           </div>
@@ -946,7 +946,7 @@ export default function AdminPage() {
           <div className="glass max-w-md rounded-4xl p-6 shadow-frost">
             <h2 className="font-display mb-4 text-lg font-semibold">Live market settings</h2>
             <label className="mb-4 flex items-center justify-between">
-              <span className="text-sm text-white/80">Show live market ticker</span>
+              <span className="text-sm text-slate-700">Show live market ticker</span>
               <input
                 type="checkbox"
                 checked={live.enabled}
@@ -955,7 +955,7 @@ export default function AdminPage() {
               />
             </label>
             <label className="block">
-              <span className="mb-1.5 block text-xs text-white/60">Rotation speed (ms)</span>
+              <span className="mb-1.5 block text-xs text-slate-500">Rotation speed (ms)</span>
               <input
                 type="number"
                 className={inputCls}
@@ -963,7 +963,7 @@ export default function AdminPage() {
                 onChange={(e) => persistLive({ ...live, speed: Math.max(600, Number(e.target.value) || 2400) })}
               />
             </label>
-            <p className="mt-4 text-xs text-white/40">The bottom-left live ticker on the store uses these settings.</p>
+            <p className="mt-4 text-xs text-slate-400">The bottom-left live ticker on the store uses these settings.</p>
           </div>
         )}
 
@@ -973,7 +973,7 @@ export default function AdminPage() {
             <h2 className="font-display mb-4 text-lg font-semibold">Change admin password</h2>
             <form onSubmit={changePw} className="grid gap-4">
               <label className="block">
-                <span className="mb-1.5 block text-xs text-white/60">New password</span>
+                <span className="mb-1.5 block text-xs text-slate-500">New password</span>
                 <input
                   type="password"
                   value={newPw}
@@ -989,7 +989,7 @@ export default function AdminPage() {
                 Update password
               </button>
             </form>
-            <p className="mt-4 text-xs text-white/40">
+            <p className="mt-4 text-xs text-slate-400">
               Stored in this browser. Default is <span className="text-lime-accent">shalom123</span> until changed.
             </p>
           </div>

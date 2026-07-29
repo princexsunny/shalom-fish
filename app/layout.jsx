@@ -26,7 +26,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#021B17",
+  themeColor: "#FFFFFF",
   width: "device-width",
   initialScale: 1,
   // let the UI extend under notches/rounded corners; pinch-zoom stays enabled

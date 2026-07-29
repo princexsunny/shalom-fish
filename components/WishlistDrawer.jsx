@@ -16,23 +16,23 @@ export default function WishlistDrawer({ open, onClose, items = [], onRemove = (
     <>
       <div
         onClick={onClose}
-        className={`fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
       <aside
-        className={`fixed right-0 top-0 z-[70] flex h-full w-full max-w-md flex-col bg-ink-900/95 ring-1 ring-white/10 backdrop-blur-xl transition-transform duration-500 ${
+        className={`fixed right-0 top-0 z-[70] flex h-full w-full max-w-md flex-col bg-white ring-1 ring-slate-200 shadow-2xl transition-transform duration-500 ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <header className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <h2 className="font-display text-lg font-bold text-white">
-            Wishlist <span className="text-sm font-normal text-white/40">({items.length})</span>
+        <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+          <h2 className="font-display text-lg font-bold text-slate-900">
+            Wishlist <span className="text-sm font-normal text-slate-400">({items.length})</span>
           </h2>
           <button
             onClick={onClose}
             aria-label="Close wishlist"
-            className="grid h-9 w-9 place-items-center rounded-full bg-white/5 text-white/70 ring-1 ring-white/10 hover:text-lime-accent"
+            className="grid h-9 w-9 place-items-center rounded-full bg-slate-50 text-slate-600 ring-1 ring-slate-200 hover:text-lime-accent"
           >
             ×
           </button>
@@ -40,7 +40,7 @@ export default function WishlistDrawer({ open, onClose, items = [], onRemove = (
 
         <div className="flex-1 overscroll-contain overflow-y-auto px-5 py-4">
           {items.length === 0 ? (
-            <div className="grid h-full place-items-center text-center text-white/40">
+            <div className="grid h-full place-items-center text-center text-slate-400">
               <div>
                 <p className="text-4xl text-lime-accent">♥</p>
                 <p className="mt-3 text-sm">No saved items yet</p>
@@ -53,18 +53,18 @@ export default function WishlistDrawer({ open, onClose, items = [], onRemove = (
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[10px] uppercase tracking-widest text-aqua/70">{p.category}</p>
-                      <p className="truncate font-semibold text-white">{p.name}</p>
-                      <p className="truncate text-xs text-white/40">{p.local}</p>
+                      <p className="truncate font-semibold text-slate-900">{p.name}</p>
+                      <p className="truncate text-xs text-slate-400">{p.local}</p>
                       <div className="mt-1 flex items-baseline gap-2">
                         <span className="text-base font-bold text-lime-accent">₹{p.price}</span>
-                        <span className="text-xs text-white/40 line-through">₹{p.oldPrice}</span>
-                        <span className="text-[11px] text-white/50">/ {p.unit}</span>
+                        <span className="text-xs text-slate-400 line-through">₹{p.oldPrice}</span>
+                        <span className="text-[11px] text-slate-500">/ {p.unit}</span>
                       </div>
                     </div>
                     <button
                       onClick={() => onRemove(p)}
                       aria-label="Remove"
-                      className="shrink-0 text-white/40 transition hover:text-discount"
+                      className="shrink-0 text-slate-400 transition hover:text-discount"
                     >
                       ✕
                     </button>

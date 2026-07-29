@@ -8,16 +8,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Light theme. Names kept so existing markup maps over automatically:
+        // ink-900 = page/base surface (now white), 800/700 = subtle greys.
         ink: {
-          900: "#021B17",
-          800: "#062F27",
-          700: "#0D3C33",
-          600: "#114A3E",
+          900: "#FFFFFF",
+          800: "#F8FAFC",
+          700: "#F1F5F9",
+          600: "#E2E8F0",
         },
-        lime: { accent: "#A3E635" },
-        emerald: { glow: "#34D399" },
-        aqua: { DEFAULT: "#5EEAD4" },
-        discount: "#FB923C",
+        lime: { accent: "#65A30D" }, // darker lime → readable on white
+        emerald: { glow: "#059669" },
+        aqua: { DEFAULT: "#0E7490" },
+        discount: "#EA580C",
       },
       fontFamily: {
         display: ["var(--font-display)", "system-ui", "sans-serif"],
@@ -28,9 +30,10 @@ module.exports = {
         "4xl": "32px",
       },
       boxShadow: {
-        glow: "0 0 40px -8px rgba(52,211,153,0.45)",
-        "glow-lime": "0 0 44px -6px rgba(163,230,53,0.5)",
-        frost: "0 20px 60px -20px rgba(0,0,0,0.6)",
+        // soft neutral shadows read better than neon glow on a light theme
+        glow: "0 8px 24px -8px rgba(15,23,42,0.18)",
+        "glow-lime": "0 8px 24px -6px rgba(101,163,13,0.35)",
+        frost: "0 10px 30px -12px rgba(15,23,42,0.18)",
       },
       backdropBlur: {
         xs: "2px",

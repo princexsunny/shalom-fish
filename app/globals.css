@@ -3,9 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --ink-900: #021b17;
-  --ink-800: #062f27;
-  --ink-700: #0d3c33;
+  /* light theme surfaces */
+  --ink-900: #ffffff;
+  --ink-800: #f8fafc;
+  --ink-700: #f1f5f9;
+  --line: #e2e8f0;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #65a30d; /* lime-600 — readable on white */
 }
 
 * {
@@ -17,7 +22,7 @@ body {
   padding: 0;
   margin: 0;
   background: var(--ink-900);
-  color: #eafff7;
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   /* keep text legible when a phone is rotated to landscape */
@@ -96,10 +101,10 @@ html.lenis body {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #021b17;
+  background: var(--ink-800);
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(#0d3c33, #114a3e);
+  background: #cbd5e1;
   border-radius: 8px;
 }
 
@@ -107,29 +112,24 @@ html.lenis body {
   font-family: var(--font-display), system-ui, sans-serif;
 }
 
-/* Frosted glass */
+/* Light "card" surfaces (kept the .glass name so markup stays unchanged) */
 .glass {
-  background: rgba(13, 60, 51, 0.35);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid rgba(94, 234, 212, 0.12);
+  background: #ffffff;
+  border: 1px solid var(--line);
 }
 .glass-strong {
-  background: rgba(6, 47, 39, 0.6);
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
-  border: 1px solid rgba(94, 234, 212, 0.16);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
 }
 
 .text-gradient {
-  background: linear-gradient(120deg, #eafff7 0%, #5eead4 45%, #a3e635 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--text);
 }
 
 .hairline {
-  border-color: rgba(94, 234, 212, 0.12);
+  border-color: var(--line);
 }
 
 /* Section reveal helper (GSAP toggles handled in JS; fallback visible) */
@@ -311,7 +311,10 @@ html.lenis body {
   cursor: grab;
 }
 .slide-card.is-active {
-  cursor: default;
+  cursor: grab; /* whole card is draggable, including the details panel */
+}
+.slide-card.is-active:active {
+  cursor: grabbing;
 }
 .slide-media {
   transition: flex-basis 0.55s cubic-bezier(0.22, 1, 0.36, 1);
@@ -327,7 +330,7 @@ html.lenis body {
   background-position: center top;
   border-radius: 0 0 28px 28px;
   filter: blur(9px);
-  opacity: 0.16;
+  opacity: 0.1;
   pointer-events: none;
   z-index: 0;
   -webkit-mask-image: linear-gradient(to top, transparent 8%, rgba(0, 0, 0, 0.6));
@@ -357,7 +360,7 @@ html.lenis body {
   inset: 0;
   pointer-events: none;
   z-index: 60;
-  opacity: 0.035;
-  mix-blend-mode: overlay;
+  opacity: 0.02; /* subtler on a light background */
+  mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
