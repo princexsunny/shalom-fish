@@ -147,9 +147,14 @@ everything shifts up 50px and the card reserve drops to 216px.
 name 10px bold · quantity **16px extrabold** (orange under 8kg).
 Rotates every **4s** with a 220ms fade. Tapping jumps the carousel to that fish.
 
-**Live Media:** latest video, else latest image. Autoplays **muted**, loops,
-`object-cover`. Pauses when off-screen (`IntersectionObserver`).
-Tap → fullscreen viewer.
+**Live Media:** an **autoplaying playlist inside the tile** — no tap needed and
+no fullscreen viewer. Videos play to their natural end (`onEnded`), photos hold
+**4.5s**, then it advances and cross-fades (`.media-fade`, 350ms).
+A long or broken clip is capped at **15s** so the reel can't stall; a single item
+just loops. Muted, `playsInline`, `object-cover`; pauses off-screen
+(`IntersectionObserver`). Segment bars bottom-right show position (max 6 + "+N").
+Tapping is only active when the item is **linked to a product** — then it jumps
+the carousel to that fish. Unlinked items are inert, not fake buttons.
 
 ---
 
@@ -228,8 +233,7 @@ components/
 ├─ Hero3D.jsx         3D slider + category pills + tiles
 ├─ Navbar.jsx         header + search
 ├─ LiveStockWidget.jsx
-├─ LiveMediaWidget.jsx
-├─ MediaViewer.jsx    fullscreen video/image viewer
+├─ LiveMediaWidget.jsx  autoplay reel (in-tile, no viewer)
 ├─ CartDrawer.jsx
 ├─ WishlistDrawer.jsx
 └─ LoginModal.jsx
