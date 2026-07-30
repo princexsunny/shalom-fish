@@ -9,8 +9,9 @@ import LiveMarketBox from "./LiveMarketBox";
 // 360px → 324px card, 430px → 360px, desktop → 360px.
 const CARD_W = "clamp(300px, 90vw, 360px)";
 // leaves room for navbar + category pills above, and dots + live ticker below
-const TOP_OFFSET = 114; // px: navbar (56) + category tiles (58)
-const CARD_H = "min(calc(100svh - 220px), 620px)";
+// vertical budget: navbar (~60) + category tiles (~58) above, dots + live below
+const TOP_OFFSET = 126;
+const CARD_H = "min(calc(100svh - 236px), 600px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -242,8 +243,8 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-lime-accent/[0.05] blur-[150px]" />
 
       {/* category selector — square icon tiles matching the top-bar buttons */}
-      <div className="absolute inset-x-0 top-[56px] z-[60]">
-        <div className="no-scrollbar flex items-start justify-center gap-1.5 overflow-x-auto px-2 py-1 sm:gap-2">
+      <div className="absolute inset-x-0 top-[62px] z-[60]">
+        <div className="no-scrollbar flex items-start justify-center gap-1.5 overflow-x-auto px-2 sm:gap-2">
           {chipCats.map((c) => {
             const on = cat === c.id;
             return (
