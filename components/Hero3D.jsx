@@ -261,7 +261,7 @@ export default function Hero3D({
         className="cat-bar absolute inset-x-0 z-[60] px-4"
         style={{ top: "calc(var(--header-h) + var(--search-h) + 6px)" }}
       >
-        <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-slate-200/80 bg-white/80 p-1 shadow-sm backdrop-blur">
+        <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-slate-200/80 bg-white/80 p-[3px] shadow-sm backdrop-blur">
           {chipCats.map((c) => {
             const on = cat === c.id;
             return (
@@ -269,7 +269,7 @@ export default function Hero3D({
                 key={c.id}
                 onClick={() => onCat(c.id)}
                 title={c.id}
-                className={`flex h-9 shrink-0 snap-start items-center whitespace-nowrap rounded-full px-3.5 text-[11px] font-bold uppercase tracking-wide outline-none transition-all duration-300 focus:outline-none ${
+                className={`flex h-8 shrink-0 snap-start items-center whitespace-nowrap rounded-full px-3.5 text-[11px] font-bold uppercase tracking-wide outline-none transition-all duration-300 focus:outline-none ${
                   on ? "bg-lime-600 text-white shadow-sm" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                 }`}
               >
@@ -307,7 +307,7 @@ export default function Hero3D({
           return (
             <article
               key={p.id}
-              className={`slide-card flex flex-col overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-xl ${isA ? "is-active" : ""} ${
+              className={`slide-card flex flex-col overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-xl ${isA ? "is-active" : ""} ${
                 isA && p.special ? "super-offer-card super-glow" : ""
               }`}
               style={cardStyle(pos)}
@@ -377,7 +377,7 @@ export default function Hero3D({
                         e.stopPropagation();
                         onToggleWish(p);
                       }}
-                      className={`absolute bottom-3 right-3 z-10 grid h-12 w-12 place-items-center rounded-full text-lg shadow-md ring-1 transition active:scale-90 ${
+                      className={`absolute right-3 top-[52px] z-10 grid h-11 w-11 place-items-center rounded-full text-lg shadow-md ring-1 transition active:scale-90 ${
                         wishlist[p.id]
                           ? "bg-lime-600 text-white ring-lime-600"
                           : "bg-white text-lime-600 ring-slate-200 hover:bg-slate-50"
@@ -405,7 +405,7 @@ export default function Hero3D({
                     <p data-rv className="text-[10px] font-semibold uppercase tracking-[0.18em] text-aqua/80">
                       {p.category}
                     </p>
-                    <h3 data-rv className="font-display mt-1.5 text-[22px] font-extrabold leading-none text-slate-900">
+                    <h3 data-rv className="font-display mt-1 text-[23px] font-extrabold leading-none text-slate-900">
                       {p.name}
                     </h3>
                     {p.local && p.local !== "—" && (
@@ -449,7 +449,7 @@ export default function Hero3D({
                       ))}
                     </div>
 
-                    <div data-rv className="mt-2.5 flex items-baseline gap-2.5">
+                    <div data-rv className="mt-1.5 flex items-baseline gap-2.5">
                       <span data-price className="text-[26px] font-extrabold leading-none text-lime-700">
                         ₹{Math.round(p.price * WEIGHTS[weightIdx].mult)}
                       </span>
@@ -478,7 +478,7 @@ export default function Hero3D({
                         oldPrice: Math.round((p.oldPrice || p.price) * w.mult),
                       });
                     }}
-                    className={`h-[56px] w-full shrink-0 rounded-[18px] px-5 text-[17px] font-bold uppercase tracking-wide transition active:scale-[0.98] hover:brightness-105 ${
+                    className={`h-[52px] w-full shrink-0 rounded-[20px] px-5 text-[16px] font-bold uppercase tracking-wide transition active:scale-[0.98] hover:brightness-105 ${
                       cartIds && cartIds.has(p.id)
                         ? "bg-emerald-glow text-ink-900 ring-2 ring-lime-accent"
                         : "bg-lime-accent text-ink-900"

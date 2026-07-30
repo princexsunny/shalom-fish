@@ -16,15 +16,15 @@
   /* ---------- layout budget (single source of truth, no magic numbers) ---------- */
   --header-h: 44px;
   --search-h: 50px;
-  --tabs-h: 44px;
-  --gap-top: 18px;
-  --gap-bottom: 12px;
+  --tabs-h: 38px;
+  --gap-top: 20px;
+  --gap-bottom: 16px;
   --tiles-h: 88px;
   --bottom-margin: 14px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  --details-h: clamp(190px, 28svh, 220px);
-  --card-max-h: 600px;
+  --details-h: clamp(186px, 26svh, 208px);
+  --card-max-h: 560px;
 
   /* derived */
   --top-offset: calc(var(--header-h) + var(--search-h) + var(--tabs-h) + var(--gap-top));
@@ -43,9 +43,10 @@
 @media (max-height: 679px) {
   :root {
     --search-h: 0px;
-    --gap-top: 12px;
+    --gap-top: 14px;
+    --gap-bottom: 12px;
     --tiles-h: 80px;
-    --details-h: 190px;
+    --details-h: 186px;
   }
 }
 /* short */
@@ -58,14 +59,14 @@
 /* regular — defaults apply */
 @media (min-height: 760px) and (max-height: 899px) {
   :root {
-    --card-max-h: 600px;
+    --card-max-h: 560px;
   }
 }
 /* tall */
 @media (min-height: 900px) {
   :root {
-    --gap-top: 22px;
-    --card-max-h: 660px;
+    --gap-top: 24px;
+    --card-max-h: 600px;
   }
 }
 
