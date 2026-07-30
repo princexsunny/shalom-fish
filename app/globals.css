@@ -320,11 +320,8 @@ html.lenis body {
     top: 50px !important;
   }
   .slide-card {
-    top: calc(102px + min(calc(100svh - 214px), 600px) / 2) !important;
-    height: min(calc(100svh - 214px), 600px) !important;
-  }
-  .dots-row {
-    top: calc(102px + min(calc(100svh - 214px), 600px) + 82px) !important;
+    top: calc(102px + min(calc(100svh - 216px), 600px) / 2) !important;
+    height: min(calc(100svh - 216px), 600px) !important;
   }
 }
 
@@ -332,7 +329,7 @@ html.lenis body {
   position: absolute;
   left: 50%;
   /* sits between the category pills and the dots/live ticker */
-  top: calc(152px + min(calc(100svh - 264px), 600px) / 2);
+  top: calc(152px + min(calc(100svh - 266px), 600px) / 2);
   display: flex;
   flex-direction: column;
   transform-style: preserve-3d;

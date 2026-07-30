@@ -12,10 +12,9 @@ const CARD_W = "clamp(300px, 90vw, 360px)";
 // leaves room for navbar + category pills above, and dots + live ticker below
 // EVERYTHING fits one mobile screen — no page scrolling.
 // Above the card: header 44 + search 50 = 94, pills 44 (@100) → card starts 152.
-// Below the card: the 96px widgets overlap it by 27px so they add 69px, then
-// 13px gap + 18px dots + 12px slack = 112px reserved under the card.
+// Below the card: 12px gap + 88px live tiles + 14px bottom margin = 114px.
 const TOP_OFFSET = 152;
-const CARD_H = "min(calc(100svh - 264px), 600px)";
+const CARD_H = "min(calc(100svh - 266px), 600px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -492,27 +491,6 @@ export default function Hero3D({
         })}
       </div>
 
-      {/* tiny dot progress — directly under the card */}
-      <div
-        className="dots-row pointer-events-auto absolute inset-x-0 z-30 flex justify-center gap-1.5 px-4"
-        style={{ top: `calc(${TOP_OFFSET}px + ${CARD_H} + 82px)` }}
-      >
-        {list.map((_, k) => (
-          <button
-            key={k}
-            onClick={() => goto(k)}
-            aria-label={`Go to product ${k + 1}`}
-            className="group grid h-4 w-3 place-items-center"
-          >
-            <span
-              className={`block rounded-full transition-all duration-300 ${
-                k === active ? "h-1.5 w-4 bg-lime-600" : "h-1.5 w-1.5 bg-slate-300 group-hover:bg-slate-400"
-              }`}
-            />
-          </button>
-        ))}
-      </div>
-
       {/* prev / next with position counter */}
       <button
         onClick={prev}
@@ -537,14 +515,13 @@ export default function Hero3D({
         <span className="text-[6px] leading-none text-slate-400">/{String(N).padStart(2, "0")}</span>
       </button>
 
-      {/* Floating widgets — anchored to the CARD's lower corners (not the screen
-          edges) and overlapping it by ~28% so they read as attached widgets.
-          Both are the same size and sit on one horizontal line. */}
+      {/* Live tiles — flat, sitting UNDER the card with a small gap, matched to
+          the card width and splitting the space evenly. */}
       <div
-        className="pointer-events-none absolute left-1/2 z-40 -translate-x-1/2"
-        style={{ width: CARD_W, top: `calc(${TOP_OFFSET}px + ${CARD_H} - 27px)` }}
+        className="absolute left-1/2 z-40 -translate-x-1/2"
+        style={{ width: CARD_W, top: `calc(${TOP_OFFSET}px + ${CARD_H} + 12px)` }}
       >
-        <div className="pointer-events-auto flex items-start justify-between px-4">
+        <div className="flex gap-2.5">
           <LiveStockWidget
             onSelect={(id) => {
               const k = list.findIndex((p) => p.id === id);
