@@ -1,0 +1,51 @@
+rules_version = '2';
+
+// Paste this into Firebase console → Firestore Database → Rules → Publish.
+// Kept in the repo so the deployed rules and the code can be reviewed together.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Admin uid. Change this string to add/replace the shop owner account.
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'qa8OBPQkh4eXtkXU7k76JT701Wk2';
+    }
+
+    // Catalogue, categories, offers, live stock, media.
+    // Anyone can read the shop; only the admin can change it.
+    match /shalom/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Orders: customers must be able to CREATE (they aren't signed in), but
+    // only the admin may read them back or change status. Without the shape
+    // checks below, an open create rule is a free write endpoint for spammers.
+    match /orders/{orderId} {
+      allow read, update, delete: if isAdmin();
+
+      allow create: if
+        request.resource.data.keys().hasAll(['ref', 'customer', 'items', 'totals'])
+        && request.resource.data.status == 'new'
+        && request.resource.data.ref is string
+        && request.resource.data.ref.size() <= 20
+        && request.resource.data.customer.name is string
+        && request.resource.data.customer.name.size() <= 80
+        && request.resource.data.customer.phone is string
+        && request.resource.data.customer.phone.size() <= 15
+        && request.resource.data.customer.address is string
+        && request.resource.data.customer.address.size() <= 400
+        && request.resource.data.items.size() <= 40
+        && request.resource.data.totals.total is number
+        && request.resource.data.totals.total >= 0
+        && request.resource.data.totals.total <= 200000
+        // payment fields
+        && request.resource.data.payment in ['cod', 'online']
+        && request.resource.data.paymentStatus in ['pending', 'paid']
+        // COD can never claim to be paid
+        && (request.resource.data.payment == 'cod'
+            ? request.resource.data.paymentStatus == 'pending'
+            : request.resource.data.paymentId is string
+              && request.resource.data.paymentId.size() <= 60);
+    }
+  }
+}

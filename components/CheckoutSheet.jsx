@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { placeOrder, orderRef, saveDetails, loadDetails } from "@/lib/orders";
+import { payWithRazorpay } from "@/lib/payment";
 
 export default function CheckoutSheet({ open, onClose, cart, totals, onPlaced }) {
   const [name, setName] = useState("");
@@ -8,6 +9,7 @@ export default function CheckoutSheet({ open, onClose, cart, totals, onPlaced })
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [slot, setSlot] = useState("asap");
+  const [pay, setPay] = useState("cod"); // "cod" | "online"
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [done, setDone] = useState(null); // placed order
@@ -40,27 +42,44 @@ export default function CheckoutSheet({ open, onClose, cart, totals, onPlaced })
     if (address.trim().length < 10) return setErr("Please enter a delivery address");
 
     setBusy(true);
+    const ref = orderRef();
+    const customer = { name: name.trim(), phone: digits, address: address.trim(), notes: notes.trim() };
+    const items = cart.map((x) => ({
+      id: x.id,
+      name: x.name,
+      weight: x.weight,
+      price: x.price,
+      qty: x.qty,
+      cleaning: !!x.cleaning,
+    }));
+
     try {
-      const order = await placeOrder({
-        ref: orderRef(),
-        customer: { name: name.trim(), phone: digits, address: address.trim(), notes: notes.trim() },
-        slot,
-        payment: "cod",
-        items: cart.map((x) => ({
-          id: x.id,
-          name: x.name,
-          weight: x.weight,
-          price: x.price,
-          qty: x.qty,
-          cleaning: !!x.cleaning,
-        })),
-        totals,
-      });
+      let paymentInfo = { payment: "cod", paymentStatus: "pending" };
+
+      // Take the money FIRST when paying online. Writing the order before the
+      // payment would leave a paid-looking record behind every abandoned
+      // checkout, and the shop would dispatch fish nobody paid for.
+      if (pay === "online") {
+        const r = await payWithRazorpay({ items, ref, customer, total: totals.total });
+        if (r.status === "cancelled") {
+          setErr("Payment cancelled. Nothing was charged.");
+          setBusy(false);
+          return;
+        }
+        paymentInfo = {
+          payment: "online",
+          paymentStatus: "paid",
+          paymentId: r.paymentId,
+          gatewayOrderId: r.orderId,
+        };
+      }
+
+      const order = await placeOrder({ ref, customer, slot, ...paymentInfo, items, totals });
       saveDetails({ name: name.trim(), phone: digits, address: address.trim() });
       setDone(order);
       onPlaced?.(order);
     } catch (e2) {
-      setErr(e2?.code || e2?.message || "Could not place the order. Please try again.");
+      setErr(e2?.message || e2?.code || "Could not place the order. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -92,7 +111,9 @@ export default function CheckoutSheet({ open, onClose, cart, totals, onPlaced })
               </div>
               <div className="mt-1 flex justify-between">
                 <span className="text-slate-500">Payment</span>
-                <span className="font-medium text-slate-700">Cash on delivery</span>
+                <span className="font-medium text-slate-700">
+                  {done.payment === "online" ? "Paid online ✓" : "Cash on delivery"}
+                </span>
               </div>
               <div className="mt-1 flex justify-between">
                 <span className="text-slate-500">Delivery</span>
@@ -102,6 +123,7 @@ export default function CheckoutSheet({ open, onClose, cart, totals, onPlaced })
 
             <p className="mt-4 text-xs leading-relaxed text-slate-500">
               We&apos;ll call {phone} to confirm. Keep this reference handy.
+              {done.paymentId ? ` Payment id: ${done.paymentId}` : ""}
             </p>
 
             <button
@@ -186,6 +208,32 @@ export default function CheckoutSheet({ open, onClose, cart, totals, onPlaced })
                 </div>
               </div>
 
+              {/* payment method */}
+              <div>
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Payment</span>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "cod", label: "Cash on delivery", sub: "Pay at the door" },
+                    { id: "online", label: "Pay now", sub: "UPI · Card · Netbanking" },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setPay(p.id)}
+                      aria-pressed={pay === p.id}
+                      className={`flex min-h-[56px] flex-col justify-center rounded-xl border px-3 py-2 text-left transition ${
+                        pay === p.id
+                          ? "border-lime-500 bg-lime-50 ring-2 ring-lime-100"
+                          : "border-slate-200 bg-white hover:bg-slate-50"
+                      }`}
+                    >
+                      <span className="text-xs font-bold text-slate-800">{p.label}</span>
+                      <span className="mt-0.5 text-[10px] leading-tight text-slate-500">{p.sub}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <label className="block">
                 <span className="mb-1 block text-xs font-medium text-slate-600">Notes (optional)</span>
                 <input
@@ -215,7 +263,9 @@ export default function CheckoutSheet({ open, onClose, cart, totals, onPlaced })
                 <span>Total</span>
                 <span>₹{totals.total}</span>
               </div>
-              <p className="pt-1 text-[11px] text-slate-500">Cash on delivery</p>
+              <p className="pt-1 text-[11px] text-slate-500">
+                {pay === "online" ? "Paid securely via Razorpay" : "Cash on delivery"}
+              </p>
             </div>
 
             {err && <p className="mt-3 text-sm font-medium text-red-600">{err}</p>}
@@ -225,11 +275,16 @@ export default function CheckoutSheet({ open, onClose, cart, totals, onPlaced })
               disabled={busy}
               className="mt-4 h-[56px] w-full rounded-[18px] bg-lime-600 text-[16px] font-bold uppercase tracking-wide text-white shadow-lg shadow-lime-600/25 transition active:scale-[0.98] hover:bg-lime-700 disabled:opacity-60"
             >
-              {busy ? "Placing order…" : `Place order · ₹${totals.total}`}
+              {busy
+                ? pay === "online"
+                  ? "Opening payment…"
+                  : "Placing order…"
+                : `${pay === "online" ? "Pay" : "Place order ·"} ₹${totals.total}`}
             </button>
 
             <p className="mt-3 text-center text-[10px] leading-relaxed text-slate-400">
-              Your number is used only for delivery updates. No payment is taken online.
+              Your number is used only for delivery updates.
+              {pay === "online" ? " Payments are processed by Razorpay — we never see your card details." : ""}
             </p>
           </form>
         )}

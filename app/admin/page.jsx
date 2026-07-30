@@ -1228,6 +1228,18 @@ export default function AdminPage() {
                             >
                               {STATUS_LABEL[o.status] || o.status}
                             </span>
+                            {/* Payment chip. Green PAID means the signature was
+                                verified server-side, not that the customer said
+                                so — safe to dispatch on. */}
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                                o.payment === "online" && o.paymentStatus === "paid"
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : "bg-slate-100 text-slate-600"
+                              }`}
+                            >
+                              {o.payment === "online" && o.paymentStatus === "paid" ? "Paid ✓" : "COD"}
+                            </span>
                           </div>
                           <p className="mt-1 text-[11px] text-slate-400">
                             {o.createdAt ? new Date(o.createdAt).toLocaleString("en-IN") : ""}
@@ -1247,8 +1259,14 @@ export default function AdminPage() {
                           <p className="mt-1 text-xs italic text-slate-500">“{o.customer.notes}”</p>
                         ) : null}
                         <p className="mt-1.5 text-[11px] text-slate-400">
-                          {o.slot === "asap" ? "ASAP" : o.slot} · {o.payment === "cod" ? "Cash on delivery" : o.payment}
+                          {o.slot === "asap" ? "ASAP" : o.slot} ·{" "}
+                          {o.payment === "online" ? "Paid online (Razorpay)" : "Cash on delivery"}
                         </p>
+                        {o.paymentId ? (
+                          <p className="mt-0.5 break-all text-[10px] text-slate-400">
+                            Payment id: {o.paymentId}
+                          </p>
+                        ) : null}
                       </div>
 
                       {/* items */}
