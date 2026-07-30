@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import CartDrawer from "@/components/CartDrawer";
 import WishlistDrawer from "@/components/WishlistDrawer";
 import LoginModal from "@/components/LoginModal";
+import LiveSection from "@/components/LiveSection";
 
 const Hero3D = dynamic(() => import("@/components/Hero3D"), {
   ssr: false,
@@ -91,6 +92,7 @@ export default function Home() {
           cartIds={cartIds}
           query={query}
         />
+        <LiveSection />
       </main>
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} setCart={setCart} />
       <WishlistDrawer

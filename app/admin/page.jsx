@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { products as baseProducts } from "@/lib/products";
-import { getData, setData, uploadImage, firebaseEnabled } from "@/lib/store";
+import { getData, setData, uploadImage, uploadMedia, firebaseEnabled } from "@/lib/store";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CATEGORY_OPTIONS = DEFAULT_CATS;
@@ -55,6 +55,10 @@ export default function AdminPage() {
   const [categories, setCategories] = useState(DEFAULT_CATS);
   const [offers, setOffers] = useState([]);
   const [live, setLive] = useState({ enabled: true, speed: 2400 });
+  const [media, setMedia] = useState([]);
+  const [mediaTitle, setMediaTitle] = useState("");
+  const [mediaBusy, setMediaBusy] = useState("");
+  const mediaRef = useRef(null);
   const [newCat, setNewCat] = useState("");
   const [offerForm, setOfferForm] = useState({ title: "", pct: "", code: "" });
   // inventory controls
@@ -79,6 +83,7 @@ export default function AdminPage() {
       setCategories(await getData("categories", DEFAULT_CATS));
       setOffers(await getData("offers", []));
       setLive(await getData("live", { enabled: true, speed: 2400 }));
+      setMedia(await getData("media", []));
     })();
     try {
       if (sessionStorage.getItem("shalom_admin_authed") === "1") setAuthed(true);
@@ -111,6 +116,48 @@ export default function AdminPage() {
   const persistLive = (v) => {
     setLive(v);
     setData("live", v).catch(flashError);
+  };
+  const persistMedia = (v) => {
+    setMedia(v);
+    setData("media", v).catch(flashError);
+  };
+
+  // upload live photos / videos
+  const onMediaFiles = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const added = [];
+    for (const f of files) {
+      setMediaBusy(`Uploading ${f.name}…`);
+      try {
+        const m = await uploadMedia(f);
+        added.push({
+          ...m,
+          id: `m${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
+          title: mediaTitle || f.name.replace(/\.[^.]+$/, ""),
+          uploadedAt: new Date().toISOString(),
+        });
+      } catch (err) {
+        flashError(err);
+      }
+    }
+    setMediaBusy("");
+    if (added.length) {
+      persistMedia([...added, ...media]);
+      setMediaTitle("");
+      setToast(`${added.length} item(s) uploaded ✓`);
+      setTimeout(() => setToast(""), 2200);
+    }
+    e.target.value = "";
+  };
+  const removeMedia = (id) => persistMedia(media.filter((m) => m.id !== id));
+  const moveMedia = (id, dir) => {
+    const i = media.findIndex((m) => m.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= media.length) return;
+    const next = [...media];
+    [next[i], next[j]] = [next[j], next[i]];
+    persistMedia(next);
   };
 
   const getPw = () => {
@@ -466,6 +513,7 @@ export default function AdminPage() {
             { id: "categories", label: "Categories" },
             { id: "offers", label: "Offers" },
             { id: "live", label: "Live" },
+            { id: "media", label: `Media (${media.length})` },
             { id: "settings", label: "Settings" },
           ].map((t) => (
             <button
@@ -938,6 +986,115 @@ export default function AdminPage() {
                 {offers.length === 0 && <p className="text-sm text-slate-400">No offers yet.</p>}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* LIVE MEDIA */}
+        {tab === "media" && (
+          <div className="space-y-4">
+            <div className="glass rounded-4xl p-6 shadow-frost">
+              <h2 className="font-display mb-1 text-lg font-semibold">Live photos &amp; videos</h2>
+              <p className="mb-4 text-xs text-slate-500">
+                Shown in the Live Media panel on the home page. Videos autoplay muted and loop; tapping opens a
+                fullscreen viewer.
+              </p>
+
+              {!firebaseEnabled && (
+                <p className="mb-4 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700 ring-1 ring-amber-200">
+                  Firebase isn&apos;t connected, so only <strong>images</strong> can be uploaded. Videos need Firebase
+                  Storage.
+                </p>
+              )}
+
+              <label className="mb-3 block">
+                <span className="mb-1.5 block text-xs text-slate-500">Title (optional)</span>
+                <input
+                  className={inputCls}
+                  value={mediaTitle}
+                  onChange={(e) => setMediaTitle(e.target.value)}
+                  placeholder="e.g. Fresh catch arriving"
+                />
+              </label>
+
+              <button
+                type="button"
+                disabled={!!mediaBusy}
+                onClick={() => mediaRef.current?.click()}
+                className="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-4 text-sm text-slate-600 transition hover:border-lime-accent/50 hover:text-lime-accent disabled:opacity-60"
+              >
+                {mediaBusy || "+ Upload photos or videos"}
+              </button>
+              <input
+                ref={mediaRef}
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                onChange={onMediaFiles}
+                className="hidden"
+              />
+              <p className="mt-2 text-[11px] text-slate-400">
+                Tip: keep videos under ~15 seconds and 720p — large files are slow for customers and cost more
+                bandwidth.
+              </p>
+            </div>
+
+            {media.length > 0 && (
+              <div className="glass rounded-4xl p-6 shadow-frost">
+                <h3 className="mb-3 text-sm font-semibold text-slate-700">
+                  {media.length} item(s) — first one shows first
+                </h3>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {media.map((m, i) => (
+                    <div key={m.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                      <div className="relative aspect-square bg-slate-100">
+                        {m.type === "video" ? (
+                          m.thumbnail ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={m.thumbnail} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <video src={m.url} className="h-full w-full object-cover" muted playsInline />
+                          )
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={m.url} alt="" className="h-full w-full object-cover" />
+                        )}
+                        <span className="absolute left-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+                          {m.type === "video" ? "▶ Video" : "Photo"}
+                        </span>
+                      </div>
+                      <div className="p-2">
+                        <p className="truncate text-[11px] font-medium text-slate-700">{m.title || "Untitled"}</p>
+                        <div className="mt-1.5 flex items-center gap-1">
+                          <button
+                            onClick={() => moveMedia(m.id, -1)}
+                            disabled={i === 0}
+                            aria-label="Move earlier"
+                            className="grid h-7 w-7 place-items-center rounded-lg bg-slate-100 text-xs text-slate-600 disabled:opacity-40"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            onClick={() => moveMedia(m.id, 1)}
+                            disabled={i === media.length - 1}
+                            aria-label="Move later"
+                            className="grid h-7 w-7 place-items-center rounded-lg bg-slate-100 text-xs text-slate-600 disabled:opacity-40"
+                          >
+                            ↓
+                          </button>
+                          <button
+                            onClick={() => removeMedia(m.id)}
+                            aria-label="Delete"
+                            className="ml-auto grid h-7 w-7 place-items-center rounded-lg bg-red-50 text-xs text-red-600"
+                          >
+                            🗑
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

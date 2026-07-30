@@ -43,7 +43,7 @@ service cloud.firestore {
   }
 }
 ```
-**Storage rules** (Storage → Rules):
+**Storage rules** (Storage → Rules) — note `media/` is required for live photos/videos:
 ```
 rules_version = '2';
 service firebase.storage {
@@ -52,9 +52,15 @@ service firebase.storage {
       allow read: if true;
       allow write: if true;   // demo — lock down for production.
     }
+    match /media/{file} {
+      allow read: if true;
+      allow write: if true;   // live photos + videos
+    }
   }
 }
 ```
+⚠️ If `media/` is missing from these rules, **video and photo uploads in the admin
+Media tab will fail** with `storage/unauthorized`.
 ⚠️ These allow public writes (fine for a demo/prototype). For a real store, add Firebase
 Authentication and restrict `write` to signed-in admins.
 
