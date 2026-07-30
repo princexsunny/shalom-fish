@@ -70,35 +70,35 @@ export default function LiveStockWidget({ onSelect }) {
       type="button"
       onClick={() => onSelect?.(p.id)}
       aria-label={`${p.name}, ${p.qty} kg available`}
-      className="h-[78px] w-[78px] overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-2 text-left shadow-lg backdrop-blur transition active:scale-95 hover:border-lime-300"
+      className="h-24 w-24 overflow-hidden rounded-[20px] border border-slate-200/80 bg-white/95 px-2.5 py-2 text-left shadow-[0_6px_16px_rgba(15,23,42,0.11)] backdrop-blur transition active:scale-95 hover:border-lime-300"
     >
       <div className="flex items-center gap-1">
         <span className="relative flex h-1.5 w-1.5">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime-500 opacity-75" />
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-lime-500" />
         </span>
-        <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-slate-500">Live</span>
+        <span className="text-[8px] font-bold uppercase tracking-[0.14em] text-slate-500">Live</span>
       </div>
 
-      <div className={`mt-1 transition-opacity duration-200 ${fade ? "opacity-100" : "opacity-0"}`}>
-        <div className="flex items-center gap-1.5">
+      <div className={`transition-opacity duration-200 ${fade ? "opacity-100" : "opacity-0"}`}>
+        <div className="mt-1 flex items-center gap-1.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={p.image || "/products/seer.jpg"}
             alt=""
             loading="lazy"
-            className="h-6 w-6 shrink-0 rounded-md object-cover ring-1 ring-slate-200"
+            className="h-[26px] w-[26px] shrink-0 rounded-lg object-cover ring-1 ring-slate-200"
           />
-          <p className="min-w-0 flex-1 truncate text-[10px] font-bold leading-tight text-slate-800">{p.name}</p>
+          <p className="min-w-0 flex-1 truncate text-[9px] font-bold leading-tight text-slate-700">{p.name}</p>
         </div>
         <p
-          className={`mt-1 text-[13px] font-extrabold leading-none ${
+          className={`mt-1 text-[17px] font-extrabold leading-none ${
             p.qty < 8 ? "text-orange-600" : "text-lime-700"
           }`}
         >
           {p.qty} kg
         </p>
-        <p className="mt-0.5 text-[8px] text-slate-400">available</p>
+        <p className="mt-0.5 text-[8px] font-medium text-slate-400">Available</p>
       </div>
     </button>
   );

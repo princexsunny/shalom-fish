@@ -48,7 +48,7 @@ export default function LiveMediaWidget() {
       <a
         href="/admin"
         aria-label="Upload live media in admin"
-        className="grid h-[78px] w-[78px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-white/85 text-center shadow-sm backdrop-blur transition hover:border-lime-400"
+        className="grid h-24 w-24 place-items-center rounded-[20px] border border-dashed border-slate-300 bg-white/90 text-center shadow-[0_6px_16px_rgba(15,23,42,0.11)] backdrop-blur transition hover:border-lime-400"
       >
         <span className="px-1">
           <span className="block text-lg">🎥</span>
@@ -74,7 +74,7 @@ export default function LiveMediaWidget() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open live media"
-        className="relative h-[78px] w-[78px] overflow-hidden rounded-2xl border border-white/60 bg-slate-900 shadow-lg transition active:scale-95"
+        className="relative h-24 w-24 overflow-hidden rounded-[20px] border border-white/70 bg-slate-900 shadow-[0_6px_16px_rgba(15,23,42,0.11)] transition active:scale-95"
       >
         {item.type === "video" ? (
           <video

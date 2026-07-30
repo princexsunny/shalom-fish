@@ -12,9 +12,10 @@ const CARD_W = "clamp(300px, 90vw, 360px)";
 // leaves room for navbar + category pills above, and dots + live ticker below
 // EVERYTHING fits one mobile screen — no page scrolling.
 // Above the card: header 44 + search 50 = 94, pills 44 (@100) → card starts 152.
-// Below the card: 12 gap + dots 18 + 12 gap + widget 78 + 16 inset ≈ 136.
+// Below the card: the 96px widgets overlap it by 27px so they add 69px, then
+// 13px gap + 18px dots + 12px slack = 112px reserved under the card.
 const TOP_OFFSET = 152;
-const CARD_H = "min(calc(100svh - 288px), 600px)";
+const CARD_H = "min(calc(100svh - 264px), 600px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -494,7 +495,7 @@ export default function Hero3D({
       {/* tiny dot progress — directly under the card */}
       <div
         className="dots-row pointer-events-auto absolute inset-x-0 z-30 flex justify-center gap-1.5 px-4"
-        style={{ top: `calc(${TOP_OFFSET}px + ${CARD_H} + 12px)` }}
+        style={{ top: `calc(${TOP_OFFSET}px + ${CARD_H} + 82px)` }}
       >
         {list.map((_, k) => (
           <button
@@ -536,23 +537,22 @@ export default function Hero3D({
         <span className="text-[6px] leading-none text-slate-400">/{String(N).padStart(2, "0")}</span>
       </button>
 
-      {/* floating widgets — bottom corners, clear of the CTA and the browser bar */}
+      {/* Floating widgets — anchored to the CARD's lower corners (not the screen
+          edges) and overlapping it by ~28% so they read as attached widgets.
+          Both are the same size and sit on one horizontal line. */}
       <div
-        className="absolute left-4 z-40"
-        style={{ bottom: "calc(16px + env(safe-area-inset-bottom, 0px))" }}
+        className="pointer-events-none absolute left-1/2 z-40 -translate-x-1/2"
+        style={{ width: CARD_W, top: `calc(${TOP_OFFSET}px + ${CARD_H} - 27px)` }}
       >
-        <LiveStockWidget
-          onSelect={(id) => {
-            const k = list.findIndex((p) => p.id === id);
-            if (k >= 0) goto(k);
-          }}
-        />
-      </div>
-      <div
-        className="absolute right-4 z-40"
-        style={{ bottom: "calc(16px + env(safe-area-inset-bottom, 0px))" }}
-      >
-        <LiveMediaWidget />
+        <div className="pointer-events-auto flex items-start justify-between px-4">
+          <LiveStockWidget
+            onSelect={(id) => {
+              const k = list.findIndex((p) => p.id === id);
+              if (k >= 0) goto(k);
+            }}
+          />
+          <LiveMediaWidget />
+        </div>
       </div>
 
       {/* headline — bottom right, sits behind the moving cards */}
