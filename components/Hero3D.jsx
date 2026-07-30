@@ -3,17 +3,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { products, discountPct } from "@/lib/products";
 import { getData } from "@/lib/store";
-import LiveMarketBox from "./LiveMarketBox";
+import LiveStockWidget from "./LiveStockWidget";
+import LiveMediaWidget from "./LiveMediaWidget";
 
 // Fills the mobile screen (small side margins), caps out on tablet/desktop.
 // 360px → 324px card, 430px → 360px, desktop → 360px.
 const CARD_W = "clamp(300px, 90vw, 360px)";
 // leaves room for navbar + category pills above, and dots + live ticker below
-// Vertical rhythm: header 58 + search 48 + 14 gap + pill bar 44 + 18 gap → 182.
-// Short screens hide the search + live bar (see globals.css) which frees ~130px,
-// so `svh` maths below uses the tall-screen worst case.
+// Header 58 + search 48 + 14 gap + pill bar 44 + 18 gap → card starts at 182.
+// Card runs almost to the bottom. The 90px live widgets sit 16px from the bottom
+// and overlap only the card's last ~6px, so they never cover the Add to Cart
+// button (that was the trap with a truly full-height card).
 const TOP_OFFSET = 182;
-const CARD_H = "min(calc(100svh - 306px), 560px)";
+const CARD_H = "min(calc(100svh - 282px), 620px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -535,9 +537,17 @@ export default function Hero3D({
         <span className="text-[6px] leading-none text-slate-400">/{String(N).padStart(2, "0")}</span>
       </button>
 
-      {/* live fish market — centred below the dots */}
-      <div className="live-row absolute inset-x-0 bottom-3 z-20 flex justify-center px-3 sm:bottom-4">
-        <LiveMarketBox items={list} onSelect={(idx) => goto(idx)} />
+      {/* floating widgets — overlap the card slightly for a layered feel */}
+      <div className="absolute bottom-4 left-4 z-40">
+        <LiveStockWidget
+          onSelect={(id) => {
+            const k = list.findIndex((p) => p.id === id);
+            if (k >= 0) goto(k);
+          }}
+        />
+      </div>
+      <div className="absolute bottom-4 right-4 z-40">
+        <LiveMediaWidget />
       </div>
 
       {/* headline — bottom right, sits behind the moving cards */}
