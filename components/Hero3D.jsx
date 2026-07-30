@@ -534,7 +534,12 @@ export default function Hero3D({
               if (k >= 0) goto(k);
             }}
           />
-          <LiveMediaWidget />
+          <LiveMediaWidget
+            onSelectProduct={(id) => {
+              const k = list.findIndex((p) => String(p.id) === String(id));
+              if (k >= 0) goto(k);
+            }}
+          />
         </div>
       </div>
 

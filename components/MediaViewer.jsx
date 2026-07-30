@@ -8,7 +8,7 @@ import { createPortal } from "react-dom";
  * - images: pinch-to-zoom (native, via touch-action) and swipe
  * - swipe left/right or arrow keys to move between items
  */
-export default function MediaViewer({ items = [], index = 0, onClose = () => {} }) {
+export default function MediaViewer({ items = [], index = 0, onClose = () => {}, onProduct = null }) {
   const [i, setI] = useState(index);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(true);
@@ -176,7 +176,32 @@ export default function MediaViewer({ items = [], index = 0, onClose = () => {} 
           </>
         )}
         <p className="text-sm font-semibold">{item.title || (item.type === "video" ? "Live video" : "Live photo")}</p>
-        {n > 1 && <p className="mt-1 text-[11px] text-white/50">Swipe to browse · swipe down to close</p>}
+
+        {/* Linked product — makes it unambiguous what the customer is looking at */}
+        {item.productId && onProduct && (
+          <button
+            onClick={() => {
+              onProduct(item.productId);
+              onClose();
+            }}
+            className="mt-3 flex w-full items-center gap-3 rounded-2xl bg-white/10 p-3 text-left ring-1 ring-white/20 backdrop-blur transition active:scale-[0.99] hover:bg-white/15"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-bold text-white">{item.productName}</span>
+              {item.productPrice ? (
+                <span className="block text-xs text-white/70">
+                  ₹{item.productPrice}
+                  {item.productUnit ? ` / ${item.productUnit}` : ""}
+                </span>
+              ) : null}
+            </span>
+            <span className="shrink-0 rounded-full bg-lime-500 px-3.5 py-2 text-xs font-bold text-white">
+              View product
+            </span>
+          </button>
+        )}
+
+        {n > 1 && <p className="mt-2 text-[11px] text-white/50">Swipe to browse · swipe down to close</p>}
       </div>
     </div>,
     document.body

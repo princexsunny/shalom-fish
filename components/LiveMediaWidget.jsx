@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { getData } from "@/lib/store";
 import MediaViewer from "./MediaViewer";
 
-export default function LiveMediaWidget() {
+export default function LiveMediaWidget({ onSelectProduct }) {
   const [media, setMedia] = useState([]);
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -130,14 +130,27 @@ export default function LiveMediaWidget() {
           </span>
         )}
 
-        {media.length > 1 && (
+        {/* product name so the photo is unambiguous at a glance */}
+        {item.productName && (
+          <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-1.5 pb-1 pt-3 text-[9px] font-bold text-white">
+            {item.productName}
+          </span>
+        )}
+        {media.length > 1 && !item.productName && (
           <span className="absolute bottom-1 right-1.5 text-[8px] font-semibold text-white/85 drop-shadow">
             {media.length}
           </span>
         )}
       </button>
 
-      {open && <MediaViewer items={media} index={startIndex} onClose={() => setOpen(false)} />}
+      {open && (
+        <MediaViewer
+          items={media}
+          index={startIndex}
+          onClose={() => setOpen(false)}
+          onProduct={onSelectProduct}
+        />
+      )}
     </>
   );
 }

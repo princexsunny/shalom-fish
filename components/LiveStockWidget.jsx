@@ -134,10 +134,22 @@ export default function LiveStockWidget({ onSelect }) {
       type="button"
       onClick={() => onSelect?.(p.id)}
       aria-label={`${p.name}, ₹${p.price}, ${p.qty} kg left`}
-      className="flex h-24 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white px-2.5 py-1.5 text-left transition active:scale-[0.98] hover:border-lime-300"
+      className="relative flex h-24 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white px-2.5 py-1.5 text-left transition active:scale-[0.98] hover:border-lime-300"
     >
+      {/* fish photo — top-right corner inside the card */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        key={p.id}
+        src={p.image || "/products/seer.jpg"}
+        alt=""
+        loading="lazy"
+        className={`absolute right-2 top-2 h-8 w-8 rounded-lg object-cover ring-1 ring-slate-200 transition-opacity duration-200 ${
+          fade ? "opacity-100" : "opacity-0"
+        }`}
+      />
+
       {/* live + updated */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 pr-9">
         <span className="relative flex h-1.5 w-1.5 shrink-0">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500" />
@@ -148,11 +160,11 @@ export default function LiveStockWidget({ onSelect }) {
       </div>
 
       <div className={`min-h-0 flex-1 transition-opacity duration-200 ${fade ? "opacity-100" : "opacity-0"}`}>
-        {/* name */}
-        <p className="truncate text-[9px] font-bold leading-tight text-slate-800">{p.name}</p>
+        {/* name — keep clear of the photo */}
+        <p className="truncate pr-9 text-[9px] font-bold leading-tight text-slate-800">{p.name}</p>
 
         {/* price + % change */}
-        <div className="flex items-baseline gap-1">
+        <div className="flex items-baseline gap-1 pr-9">
           <span className="text-[13px] font-extrabold leading-none text-slate-900">
             ₹{p.price.toLocaleString("en-IN")}
           </span>

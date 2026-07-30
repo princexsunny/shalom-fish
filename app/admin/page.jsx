@@ -60,6 +60,7 @@ export default function AdminPage() {
   const [media, setMedia] = useState([]);
   const [mediaTitle, setMediaTitle] = useState("");
   const [mediaBusy, setMediaBusy] = useState("");
+  const [mediaProduct, setMediaProduct] = useState("");
   const mediaRef = useRef(null);
   const [newCat, setNewCat] = useState("");
   const [offerForm, setOfferForm] = useState({ title: "", pct: "", code: "" });
@@ -139,10 +140,16 @@ export default function AdminPage() {
       setMediaBusy(`Uploading ${f.name}…`);
       try {
         const m = await uploadMedia(f);
+        const linked = allProducts.find((p) => String(p.id) === String(mediaProduct));
         added.push({
           ...m,
           id: `m${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
-          title: mediaTitle || f.name.replace(/\.[^.]+$/, ""),
+          title: mediaTitle || linked?.name || f.name.replace(/\.[^.]+$/, ""),
+          // link the photo/clip to a product so customers know exactly what it is
+          productId: linked ? linked.id : null,
+          productName: linked ? linked.name : null,
+          productPrice: linked ? linked.price : null,
+          productUnit: linked ? linked.unit : null,
           uploadedAt: new Date().toISOString(),
         });
       } catch (err) {
@@ -153,12 +160,29 @@ export default function AdminPage() {
     if (added.length) {
       persistMedia([...added, ...media]);
       setMediaTitle("");
+      setMediaProduct("");
       setToast(`${added.length} item(s) uploaded ✓`);
       setTimeout(() => setToast(""), 2200);
     }
     e.target.value = "";
   };
   const removeMedia = (id) => persistMedia(media.filter((m) => m.id !== id));
+  const linkMedia = (id, productId) => {
+    const p = allProducts.find((x) => String(x.id) === String(productId));
+    persistMedia(
+      media.map((m) =>
+        m.id === id
+          ? {
+              ...m,
+              productId: p ? p.id : null,
+              productName: p ? p.name : null,
+              productPrice: p ? p.price : null,
+              productUnit: p ? p.unit : null,
+            }
+          : m
+      )
+    );
+  };
   const moveMedia = (id, dir) => {
     const i = media.findIndex((m) => m.id === id);
     const j = i + dir;
@@ -1296,6 +1320,24 @@ export default function AdminPage() {
                 />
               </label>
 
+              <label className="mb-3 block">
+                <span className="mb-1.5 block text-xs text-slate-500">
+                  Link to product <span className="text-slate-400">(so customers know what they&apos;re seeing)</span>
+                </span>
+                <select
+                  className={inputCls}
+                  value={mediaProduct}
+                  onChange={(e) => setMediaProduct(e.target.value)}
+                >
+                  <option value="">Not linked</option>
+                  {allProducts.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} — ₹{p.price}/{p.unit}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
               <button
                 type="button"
                 disabled={!!mediaBusy}
@@ -1341,9 +1383,26 @@ export default function AdminPage() {
                         <span className="absolute left-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
                           {m.type === "video" ? "▶ Video" : "Photo"}
                         </span>
+                        {m.productId && (
+                          <span className="absolute bottom-1.5 left-1.5 right-1.5 truncate rounded bg-lime-600/90 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                            🔗 {m.productName}
+                          </span>
+                        )}
                       </div>
                       <div className="p-2">
                         <p className="truncate text-[11px] font-medium text-slate-700">{m.title || "Untitled"}</p>
+                        <select
+                          value={m.productId ?? ""}
+                          onChange={(e) => linkMedia(m.id, e.target.value)}
+                          className="mt-1 w-full rounded-lg bg-slate-50 px-1.5 py-1 text-[10px] text-slate-600 ring-1 ring-slate-200 outline-none"
+                        >
+                          <option value="">🔗 Not linked</option>
+                          {allProducts.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name}
+                            </option>
+                          ))}
+                        </select>
                         <div className="mt-1.5 flex items-center gap-1">
                           <button
                             onClick={() => moveMedia(m.id, -1)}
