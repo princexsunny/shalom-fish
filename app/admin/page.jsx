@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { products as baseProducts } from "@/lib/products";
 import { getData, setData, uploadImage, uploadMedia, firebaseEnabled } from "@/lib/store";
 import { signIn, signOutAdmin, onAdminAuth, sendReset, authMessage } from "@/lib/adminAuth";
+import { listOrders, setOrderStatus, ORDER_STATUSES, STATUS_LABEL } from "@/lib/orders";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CATEGORY_OPTIONS = DEFAULT_CATS;
@@ -67,6 +68,10 @@ export default function AdminPage() {
   const [invStatus, setInvStatus] = useState("All");
   const [invCat, setInvCat] = useState("All");
   const [invSort, setInvSort] = useState("name");
+  // orders
+  const [orders, setOrders] = useState([]);
+  const [ordersBusy, setOrdersBusy] = useState(false);
+  const [orderFilter, setOrderFilter] = useState("all");
 
   // auth — real Firebase Auth when configured, legacy local gate otherwise
   const [authed, setAuthed] = useState(false);
@@ -193,6 +198,31 @@ export default function AdminPage() {
       setAuthReady(true);
     });
   }, []);
+
+  const refreshOrders = async () => {
+    setOrdersBusy(true);
+    try {
+      setOrders(await listOrders(150));
+    } catch (err) {
+      flashError(err);
+    } finally {
+      setOrdersBusy(false);
+    }
+  };
+  useEffect(() => {
+    if (authed) refreshOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authed]);
+
+  const changeStatus = async (id, status) => {
+    setOrders((o) => o.map((x) => (x.id === id ? { ...x, status } : x)));
+    try {
+      await setOrderStatus(id, status);
+    } catch (err) {
+      flashError(err);
+      refreshOrders();
+    }
+  };
 
   const login = async (e) => {
     e.preventDefault();
@@ -636,6 +666,7 @@ export default function AdminPage() {
             { id: "categories", label: "Categories", icon: "☰" },
             { id: "offers", label: "Offers", icon: "%" },
             { id: "live", label: "Live", icon: "◉" },
+            { id: "orders", label: `Orders (${orders.filter((o) => o.status === "new").length})`, icon: "🧾" },
             { id: "media", label: `Media (${media.length})`, icon: "▶" },
             { id: "settings", label: "Settings", icon: "⚙" },
           ].map((t) => (
@@ -1112,6 +1143,129 @@ export default function AdminPage() {
                 {offers.length === 0 && <p className="text-sm text-slate-400">No offers yet.</p>}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ORDERS */}
+        {tab === "orders" && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              {["all", ...ORDER_STATUSES].map((st) => {
+                const n = st === "all" ? orders.length : orders.filter((o) => o.status === st).length;
+                return (
+                  <button
+                    key={st}
+                    onClick={() => setOrderFilter(st)}
+                    className={`h-9 rounded-full px-3.5 text-xs font-semibold transition ${
+                      orderFilter === st
+                        ? "bg-slate-900 text-white"
+                        : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {st === "all" ? "All" : STATUS_LABEL[st]} ({n})
+                  </button>
+                );
+              })}
+              <button
+                onClick={refreshOrders}
+                className="ml-auto h-9 rounded-full border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+              >
+                {ordersBusy ? "Refreshing…" : "↻ Refresh"}
+              </button>
+            </div>
+
+            {orders.filter((o) => orderFilter === "all" || o.status === orderFilter).length === 0 ? (
+              <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center">
+                <p className="text-3xl">🧾</p>
+                <p className="mt-3 text-sm text-slate-500">
+                  {ordersBusy ? "Loading orders…" : "No orders yet"}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {orders
+                  .filter((o) => orderFilter === "all" || o.status === orderFilter)
+                  .map((o) => (
+                    <div key={o.id} className="rounded-3xl border border-slate-200 bg-white p-5">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-display text-base font-bold text-slate-900">{o.ref || o.id}</span>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                                o.status === "new"
+                                  ? "bg-lime-100 text-lime-800"
+                                  : o.status === "cancelled"
+                                  ? "bg-red-50 text-red-600"
+                                  : o.status === "delivered"
+                                  ? "bg-slate-100 text-slate-600"
+                                  : "bg-amber-50 text-amber-700"
+                              }`}
+                            >
+                              {STATUS_LABEL[o.status] || o.status}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[11px] text-slate-400">
+                            {o.createdAt ? new Date(o.createdAt).toLocaleString("en-IN") : ""}
+                          </p>
+                        </div>
+                        <p className="text-xl font-extrabold text-slate-900">₹{o.totals?.total ?? 0}</p>
+                      </div>
+
+                      {/* customer */}
+                      <div className="mt-3 rounded-2xl bg-slate-50 p-3 text-sm">
+                        <p className="font-semibold text-slate-800">{o.customer?.name}</p>
+                        <a href={`tel:+91${o.customer?.phone}`} className="text-lime-700 hover:underline">
+                          +91 {o.customer?.phone}
+                        </a>
+                        <p className="mt-1 text-xs leading-relaxed text-slate-600">{o.customer?.address}</p>
+                        {o.customer?.notes ? (
+                          <p className="mt-1 text-xs italic text-slate-500">“{o.customer.notes}”</p>
+                        ) : null}
+                        <p className="mt-1.5 text-[11px] text-slate-400">
+                          {o.slot === "asap" ? "ASAP" : o.slot} · {o.payment === "cod" ? "Cash on delivery" : o.payment}
+                        </p>
+                      </div>
+
+                      {/* items */}
+                      <ul className="mt-3 divide-y divide-slate-100 text-sm">
+                        {(o.items || []).map((it, k) => (
+                          <li key={k} className="flex items-center justify-between py-1.5">
+                            <span className="min-w-0 flex-1 truncate text-slate-700">
+                              {it.name}{" "}
+                              <span className="text-slate-400">
+                                · {it.weight} × {it.qty}
+                                {it.cleaning ? " · cleaned" : ""}
+                              </span>
+                            </span>
+                            <span className="shrink-0 font-semibold text-slate-800">₹{it.price * it.qty}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {/* status actions */}
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {ORDER_STATUSES.map((st) => (
+                          <button
+                            key={st}
+                            onClick={() => changeStatus(o.id, st)}
+                            disabled={o.status === st}
+                            className={`h-8 rounded-lg px-2.5 text-[11px] font-semibold transition ${
+                              o.status === st
+                                ? "bg-slate-900 text-white"
+                                : st === "cancelled"
+                                ? "border border-red-200 bg-white text-red-600 hover:bg-red-50"
+                                : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                            }`}
+                          >
+                            {STATUS_LABEL[st]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         )}
 

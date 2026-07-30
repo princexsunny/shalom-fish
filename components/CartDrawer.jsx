@@ -1,5 +1,6 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import CheckoutSheet from "./CheckoutSheet";
 
 const DELIVERY = 40;
 const FREE_ABOVE = 499;
@@ -7,6 +8,7 @@ const CLEAN_FEE = 20;
 const GST_RATE = 0.18;
 
 export default function CartDrawer({ open, onClose, cart, setCart }) {
+  const [checkout, setCheckout] = useState(false);
   // stop the page scrolling behind the drawer on touch devices
   useEffect(() => {
     if (!open) return;
@@ -185,12 +187,26 @@ export default function CartDrawer({ open, onClose, cart, setCart }) {
               </div>
             </div>
 
-            <button className="mt-4 h-[58px] w-full rounded-[18px] bg-lime-600 text-[15px] font-bold uppercase tracking-wide text-white shadow-lg shadow-lime-600/25 transition active:scale-[0.98] hover:bg-lime-700">
-              Checkout
+            <button
+              onClick={() => setCheckout(true)}
+              className="mt-4 h-[58px] w-full rounded-[18px] bg-lime-600 text-[15px] font-bold uppercase tracking-wide text-white shadow-lg shadow-lime-600/25 transition active:scale-[0.98] hover:bg-lime-700"
+            >
+              Checkout · ₹{total}
             </button>
           </footer>
         )}
       </aside>
+
+      <CheckoutSheet
+        open={checkout}
+        onClose={() => setCheckout(false)}
+        cart={cart}
+        totals={{ subtotal: itemsTotal, gst, delivery, savings, total }}
+        onPlaced={() => {
+          setCart([]);      // basket is now an order
+          onClose();
+        }}
+      />
     </>
   );
 }
