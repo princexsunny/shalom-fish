@@ -26,7 +26,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#E6EDF1",
+  themeColor: "#0E4D54", // matches the header so the phone status bar blends in
   width: "device-width",
   initialScale: 1,
   // let the UI extend under notches/rounded corners; pinch-zoom stays enabled

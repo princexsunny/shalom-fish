@@ -261,7 +261,7 @@ export default function Hero3D({
         className="cat-bar absolute inset-x-0 z-[60] px-4"
         style={{ top: "calc(var(--header-h) + var(--search-h) + 6px)" }}
       >
-        <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-slate-300/70 bg-[#dfe8ed]/90 p-[3px] shadow-sm backdrop-blur-md">
+        <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-white/10 bg-[#0b4148]/95 p-[3px] shadow-sm backdrop-blur-md">
           {chipCats.map((c) => {
             const on = cat === c.id;
             return (
@@ -270,7 +270,7 @@ export default function Hero3D({
                 onClick={() => onCat(c.id)}
                 title={c.id}
                 className={`flex h-8 shrink-0 snap-start items-center whitespace-nowrap rounded-full px-3.5 text-[11px] font-bold uppercase tracking-wide outline-none transition-all duration-300 focus:outline-none ${
-                  on ? "bg-lime-600 text-white shadow-sm" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                  on ? "bg-lime-500 text-teal-950 shadow-sm" : "text-teal-100/70 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 {c.label}

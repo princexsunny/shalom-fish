@@ -42,7 +42,7 @@ export default function Navbar({
   onQuery = () => {},
 }) {
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-300/70 bg-[#e6edf1]/95 backdrop-blur-md">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-black/20 bg-[#0e4d54]/97 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-1.5">
         {/* brand */}
         <a href="#home" className="flex min-w-0 items-center gap-2">
@@ -50,10 +50,10 @@ export default function Navbar({
             ⌘
           </span>
           <span className="min-w-0 leading-tight">
-            <span className="font-display block truncate text-[14px] font-extrabold tracking-tight text-slate-900">
+            <span className="font-display block truncate text-[14px] font-extrabold tracking-tight text-white">
               Shalom Fish
             </span>
-            <span className="block truncate text-[9px] font-medium text-slate-400">Fresh Seafood</span>
+            <span className="block truncate text-[9px] font-medium text-teal-200/70">Fresh Seafood</span>
           </span>
         </a>
 
@@ -64,7 +64,7 @@ export default function Navbar({
           <button
             onClick={onWishlist}
             aria-label="Wishlist"
-            className="relative grid h-9 w-9 place-items-center rounded-full bg-white/70 text-slate-600 ring-1 ring-slate-300/60 transition active:scale-90 hover:bg-white hover:text-lime-700"
+            className="relative grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/20 transition active:scale-90 hover:bg-white/20"
           >
             <HeartIcon filled={wishCount > 0} />
             {wishCount > 0 && (
@@ -77,10 +77,10 @@ export default function Navbar({
           <button
             onClick={onLogin}
             aria-label={user ? "Account" : "Log in"}
-            className="grid h-9 w-9 place-items-center rounded-full bg-white/70 text-slate-600 ring-1 ring-slate-300/60 transition active:scale-90 hover:bg-white"
+            className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/20 transition active:scale-90 hover:bg-white/20"
           >
             {user ? (
-              <span className="text-[11px] font-bold text-lime-700">{user.name?.[0]?.toUpperCase() || "U"}</span>
+              <span className="text-[11px] font-bold text-lime-300">{user.name?.[0]?.toUpperCase() || "U"}</span>
             ) : (
               <UserIcon />
             )}
@@ -89,11 +89,11 @@ export default function Navbar({
           <button
             onClick={onCart}
             aria-label="Cart"
-            className="relative grid h-9 w-9 place-items-center rounded-full bg-slate-900 text-white transition active:scale-90 hover:bg-slate-800"
+            className="relative grid h-9 w-9 place-items-center rounded-full bg-lime-500 text-slate-900 transition active:scale-90 hover:bg-lime-400"
           >
             <CartIcon />
             {cartCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-[16px] place-items-center rounded-full bg-lime-600 px-1 text-[9px] font-bold text-white">
+              <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-[16px] place-items-center rounded-full bg-white px-1 text-[9px] font-bold text-teal-900 ring-1 ring-teal-900/20">
                 {cartCount}
               </span>
             )}
@@ -103,8 +103,8 @@ export default function Navbar({
 
       {/* search — hidden on very short screens so the product card keeps its height */}
       <div className="search-row mx-auto max-w-7xl px-4 pb-2.5">
-        <label className="flex h-10 items-center gap-2 rounded-full bg-white/70 px-4 ring-1 ring-slate-300/60 transition focus-within:bg-white focus-within:ring-2 focus-within:ring-lime-300">
-          <svg viewBox="0 0 24 24" className="h-[17px] w-[17px] shrink-0 text-slate-400" {...ico}>
+        <label className="flex h-10 items-center gap-2 rounded-full bg-white/10 px-4 ring-1 ring-white/20 transition focus-within:bg-white/15 focus-within:ring-2 focus-within:ring-lime-400/60">
+          <svg viewBox="0 0 24 24" className="h-[17px] w-[17px] shrink-0 text-teal-200/70" {...ico}>
             <circle cx="11" cy="11" r="6.4" />
             <path d="m16 16 4 4" />
           </svg>
@@ -112,10 +112,10 @@ export default function Navbar({
             value={query}
             onChange={(e) => onQuery(e.target.value)}
             placeholder="Search fresh seafood…"
-            className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
+            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-teal-200/60"
           />
           {query && (
-            <button onClick={() => onQuery("")} aria-label="Clear search" className="text-slate-400 hover:text-slate-700">
+            <button onClick={() => onQuery("")} aria-label="Clear search" className="text-teal-200/70 hover:text-white">
               ×
             </button>
           )}

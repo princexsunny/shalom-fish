@@ -189,10 +189,19 @@ Pointer capture engages *only after* a real swipe, so button taps still work.
 | Orange | `#F97316` | discounts, low stock |
 | Red | `#DC2626` | remove / destructive only |
 | Teal | `#0E7490` | informational category labels |
-| Page | `#DDE5EA` | app background (darkest) |
-| Category bar | `#DFE8ED` | chrome |
-| Header | `#E6EDF1` | chrome |
+| Page | `#DDE5EA` | app background |
+| Category bar | `#0B4148` | chrome (deepest teal) |
+| Header | `#0E4D54` | chrome (deep ocean teal) |
 | Surface | `#FFFFFF` | cards + live tiles (lightest, pops forward) |
+| Chrome text | `#FFFFFF` / `teal-200` | on the teal bars |
+
+**Chrome is dark, content is light.** The header and category bar are deep teal
+so the white product card reads as the foreground layer. Everything sitting on
+the teal switched to white/translucent-white fills — a `bg-white/70` pill or
+`text-slate-600` icon would have been invisible. The cart button is the one
+solid lime fill in the header (the single primary action); its count badge is
+white rather than lime, which would have vanished against it.
+`layout.jsx` `themeColor` matches `#0E4D54` so the phone status bar blends in.
 | Text | `#0F172A` / `#64748B` | primary / muted |
 
 ---

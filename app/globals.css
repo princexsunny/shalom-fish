@@ -4,7 +4,11 @@
 
 :root {
   /* light theme surfaces — page is a soft tinted grey so white cards lift */
-  --page: #dde5ea;  /* slightly darker so white cards/chrome separate */
+  --page: #dde5ea;
+  /* chrome tone ladder: header darkest teal, category bar deeper still, so the
+     white cards read as the foreground layer */
+  --chrome: #0e4d54;
+  --chrome-deep: #0b4148;  /* slightly darker so white cards/chrome separate */
   --ink-900: #ffffff;
   --ink-800: #f8fafc;
   --ink-700: #f1f5f9;
