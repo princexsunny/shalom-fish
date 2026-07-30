@@ -505,24 +505,29 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* tabs */}
-        <div className="mb-6 flex gap-1 overflow-x-auto rounded-2xl bg-slate-50 p-1 ring-1 ring-slate-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {/* tabs — WRAP instead of horizontal scroll. With 7 tabs the scrolling
+            version pushed "Media" off-screen on phones and, with the scrollbar
+            hidden, there was no hint that more tabs existed. */}
+        <div className="mb-6 flex flex-wrap gap-1 rounded-2xl bg-slate-50 p-1.5 ring-1 ring-slate-200">
           {[
-            { id: "add", label: editId ? "Edit Product" : "Add Product" },
-            { id: "inventory", label: `Inventory (${allProducts.length})` },
-            { id: "categories", label: "Categories" },
-            { id: "offers", label: "Offers" },
-            { id: "live", label: "Live" },
-            { id: "media", label: `Media (${media.length})` },
-            { id: "settings", label: "Settings" },
+            { id: "add", label: editId ? "Edit Product" : "Add Product", icon: "＋" },
+            { id: "inventory", label: `Inventory (${allProducts.length})`, icon: "▦" },
+            { id: "categories", label: "Categories", icon: "☰" },
+            { id: "offers", label: "Offers", icon: "%" },
+            { id: "live", label: "Live", icon: "◉" },
+            { id: "media", label: `Media (${media.length})`, icon: "▶" },
+            { id: "settings", label: "Settings", icon: "⚙" },
           ].map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition sm:px-5 ${
-                tab === t.id ? "bg-lime-accent text-ink-900" : "text-slate-600 hover:text-slate-900"
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-semibold transition sm:px-4 sm:text-sm ${
+                tab === t.id
+                  ? "bg-lime-accent text-white shadow-sm"
+                  : "text-slate-600 hover:bg-white hover:text-slate-900"
               }`}
             >
+              <span className={`text-[11px] ${tab === t.id ? "text-white/80" : "text-lime-600"}`}>{t.icon}</span>
               {t.label}
             </button>
           ))}
