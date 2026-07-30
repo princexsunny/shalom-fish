@@ -23,7 +23,6 @@
   --bottom-margin: 14px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  --details-h: clamp(186px, 26svh, 208px);
   --card-max-h: 560px;
 
   /* derived */
@@ -46,7 +45,6 @@
     --gap-top: 14px;
     --gap-bottom: 12px;
     --tiles-h: 80px;
-    --details-h: 186px;
   }
 }
 /* short */
@@ -80,7 +78,6 @@
     --gap-bottom: 0px;
     --tiles-h: 0px;
     --bottom-margin: 10px;
-    --details-h: 172px;
   }
   .live-tiles {
     display: none;

@@ -320,16 +320,7 @@ export default function Hero3D({
                   as tall as possible and the details can never be squeezed */}
               <div
                 className={`slide-media relative w-full overflow-hidden ${isA ? "min-h-0 flex-1" : "flex-none"}`}
-                style={
-                  isA
-                    ? {
-                        // A hard 180px floor would overflow the card in landscape /
-                        // on small foldables and push the CTA out. Cap the floor at
-                        // whatever height is actually left after the details block.
-                        minHeight: "min(180px, calc(var(--card-h) - var(--details-h)))",
-                      }
-                    : { flexBasis: "100%" }
-                }
+                style={isA ? undefined : { flexBasis: "100%" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -395,12 +386,12 @@ export default function Hero3D({
                 )}
               </div>
 
-              {/* details (lower) */}
+              {/* Details height is CONTENT-DRIVEN (shrink-0, auto height). A fixed
+                  height clips the CTA as soon as the content is taller than it —
+                  which is exactly what was happening. The image (flex-1) absorbs
+                  whatever height is left over. */}
               {isA && (
-                <div
-                  className="flex shrink-0 flex-col justify-between border-t border-slate-100 bg-white px-4 py-3"
-                  style={{ height: "var(--details-h)", minHeight: "var(--details-h)" }}
-                >
+                <div className="flex shrink-0 flex-col gap-1.5 border-t border-slate-100 bg-white px-4 pb-3.5 pt-2.5">
                   <div>
                     <p data-rv className="text-[10px] font-semibold uppercase tracking-[0.18em] text-aqua/80">
                       {p.category}
