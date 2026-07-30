@@ -9,9 +9,10 @@ import LiveMarketBox from "./LiveMarketBox";
 // 360px → 324px card, 430px → 360px, desktop → 360px.
 const CARD_W = "clamp(300px, 90vw, 360px)";
 // leaves room for navbar + category pills above, and dots + live ticker below
-// vertical budget: navbar (~60) + category tiles (~58) above, dots + live below
-const TOP_OFFSET = 126;
-const CARD_H = "min(calc(100svh - 236px), 600px)";
+// Vertical rhythm: header 58 + 16 gap + pill bar 44 + 20 gap = card starts at 138.
+// Below the card: 12 gap + dots 18 + 14 gap + live bar 68 + 12 margin = 124.
+const TOP_OFFSET = 138;
+const CARD_H = "min(calc(100svh - 262px), 600px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -242,9 +243,9 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       <div className="pointer-events-none absolute -left-40 top-1/3 h-[32rem] w-[32rem] rounded-full bg-emerald-glow/[0.08] blur-[150px]" />
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-lime-accent/[0.05] blur-[150px]" />
 
-      {/* category selector — square icon tiles matching the top-bar buttons */}
-      <div className="absolute inset-x-0 top-[62px] z-[60]">
-        <div className="no-scrollbar flex items-start justify-center gap-1.5 overflow-x-auto px-2 sm:gap-2">
+      {/* category nav — ONE pill container, only the active item highlighted */}
+      <div className="absolute inset-x-0 top-[74px] z-[60] px-4">
+        <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-slate-200/80 bg-white/80 p-1 shadow-sm backdrop-blur">
           {chipCats.map((c) => {
             const on = cat === c.id;
             return (
@@ -252,24 +253,14 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                 key={c.id}
                 onClick={() => onCat(c.id)}
                 title={c.id}
-                className="flex shrink-0 flex-col items-center gap-0.5 outline-none focus:outline-none"
+                className={`flex h-9 shrink-0 snap-start items-center gap-1 whitespace-nowrap rounded-full px-3 text-[11px] font-semibold outline-none transition-all duration-300 focus:outline-none sm:text-xs ${
+                  on
+                    ? "bg-lime-600 text-white shadow-sm"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                }`}
               >
-                <span
-                  className={`grid h-10 w-10 place-items-center rounded-xl border text-base transition-all duration-200 active:scale-90 ${
-                    on
-                      ? "border-lime-600 bg-lime-600 text-white shadow-sm"
-                      : "border-slate-200 bg-white text-lime-600 hover:bg-slate-50"
-                  }`}
-                >
-                  {c.icon}
-                </span>
-                <span
-                  className={`max-w-[52px] truncate text-[9px] font-medium leading-tight ${
-                    on ? "text-lime-700" : "text-slate-500"
-                  }`}
-                >
-                  {c.label}
-                </span>
+                {on && <span className="text-[9px]">●</span>}
+                {c.label}
               </button>
             );
           })}
@@ -314,7 +305,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
               {/* media (upper) */}
               <div
                 className="slide-media relative w-full flex-none overflow-hidden"
-                style={{ flexBasis: isA ? "52%" : "100%" }}
+                style={{ flexBasis: isA ? "48%" : "100%" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -380,25 +371,25 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
               {isA && (
                 <div className="flex min-h-0 flex-1 flex-col justify-between gap-1 border-t border-slate-100 bg-white px-4 py-2.5">
                   <div>
-                    <p data-rv className="text-[10px] uppercase tracking-[0.22em] text-aqua/70">
+                    <p data-rv className="text-[10px] font-semibold uppercase tracking-[0.18em] text-aqua/80">
                       {p.category}
                     </p>
-                    <h3 data-rv className="font-display text-xl font-extrabold leading-tight text-gradient">
+                    <h3 data-rv className="font-display mt-1.5 text-[22px] font-extrabold leading-none text-slate-900">
                       {p.name}
-                      {p.local && p.local !== "—" && (
-                        <span className="ml-1 align-middle text-xs font-medium text-slate-400">· {p.local}</span>
-                      )}
                     </h3>
-                    <div data-rv className="mt-1 flex items-center gap-1.5 text-[11px]">
-                      <span className="text-lime-accent">
+                    {p.local && p.local !== "—" && (
+                      <p data-rv className="mt-0.5 text-xs font-medium text-slate-400">{p.local}</p>
+                    )}
+                    <div data-rv className="mt-2 flex items-center gap-1.5 text-[11px]">
+                      <span className="text-lime-600">
                         {"★★★★★".split("").map((s, k) => (
                           <span key={k} className={k < Math.round(p.rating) ? "opacity-100" : "opacity-25"}>
                             ★
                           </span>
                         ))}
                       </span>
-                      <span className="text-slate-600">{p.rating.toFixed(1)}</span>
-                      <span className="text-slate-300">({p.reviews})</span>
+                      <span className="font-semibold text-slate-700">{p.rating.toFixed(1)}</span>
+                      <span className="text-slate-400">({p.reviews})</span>
                       <span className={`ml-auto rounded-full px-2 py-0.5 text-[9px] font-semibold ${stk.c}`}>
                         {stk.t}
                       </span>
@@ -454,7 +445,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                         price: Math.round(p.price * w.mult),
                       });
                     }}
-                    className={`min-h-[46px] w-full shrink-0 rounded-2xl px-5 py-3 font-semibold uppercase tracking-wide transition active:scale-[0.98] hover:brightness-110 ${
+                    className={`h-[52px] w-full shrink-0 rounded-[18px] px-5 text-[15px] font-bold uppercase tracking-wide transition active:scale-[0.98] hover:brightness-105 sm:h-[58px] ${
                       cartIds && cartIds.has(p.id)
                         ? "bg-emerald-glow text-ink-900 ring-2 ring-lime-accent"
                         : "bg-lime-accent text-ink-900"

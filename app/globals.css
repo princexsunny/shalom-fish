@@ -313,7 +313,7 @@ html.lenis body {
   position: absolute;
   left: 50%;
   /* sits between the category pills and the dots/live ticker */
-  top: calc(126px + min(calc(100svh - 236px), 600px) / 2);
+  top: calc(138px + min(calc(100svh - 262px), 600px) / 2);
   display: flex;
   flex-direction: column;
   transform-style: preserve-3d;
@@ -337,7 +337,7 @@ html.lenis body {
 .slide-reflection {
   position: absolute;
   left: 50%;
-  top: calc(126px + var(--cardH) - 2px);
+  top: calc(138px + var(--cardH) - 2px);
   width: var(--cardW);
   height: calc(var(--cardH) * 0.42);
   transform: translateX(-50%) scaleY(-1);

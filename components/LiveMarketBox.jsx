@@ -30,7 +30,7 @@ export default function LiveMarketBox({ items = products, onSelect }) {
         type="button"
         onClick={() => onSelect?.(idx)}
         aria-label={`Show ${p.name}`}
-        className="flex w-full items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-left shadow-sm transition active:scale-[0.99] hover:-translate-y-0.5 hover:border-lime-accent/40"
+        className="flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left shadow-sm transition active:scale-[0.99] hover:-translate-y-0.5 hover:border-lime-accent/40"
       >
         <span className="relative flex h-2 w-2 shrink-0">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime-accent opacity-75" />

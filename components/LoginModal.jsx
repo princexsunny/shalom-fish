@@ -116,6 +116,19 @@ export default function LoginModal({ open, onClose, user, onSave, onLogout }) {
         <p className="mt-4 text-center text-[10px] leading-relaxed text-slate-400">
           By continuing you agree to our terms. We only use your number for delivery updates.
         </p>
+
+        {/* staff entry — kept out of the customer-facing top bar */}
+        <div className="mt-3 border-t border-slate-100 pt-3 text-center">
+          <a
+            href="/admin"
+            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-400 transition hover:text-slate-700"
+          >
+            <span className="grid h-4 w-4 place-items-center rounded bg-slate-100 text-[9px] font-bold text-slate-500">
+              A
+            </span>
+            Store admin
+          </a>
+        </div>
       </div>
     </div>
   );
