@@ -39,7 +39,37 @@ browser toolbars), which is why the layout never gets cut off by the URL bar.
 └─────────────────────────────────────┘  = 100svh
 ```
 
-**Reserved space:** `152` above + `114` below = **266px**
+**Reserved space** is computed from CSS variables — no magic numbers:
+
+```css
+--top-offset: calc(var(--header-h) + var(--search-h) + var(--tabs-h) + var(--gap-top));
+--reserved:   calc(var(--top-offset) + var(--gap-bottom) + var(--tiles-h)
+                 + var(--bottom-margin) + var(--safe-bottom));
+--card-w:     min(calc(100vw - 36px), 360px);   /* always 18px side margins */
+--card-h:     min(calc(100svh - var(--reserved)), var(--card-max-h));
+```
+
+### Height classes
+| Class | Range | search | gap-top | tiles | card max |
+|---|---|---|---|---|---|
+| very short | ≤679 | hidden | 12 | 80 | 600 |
+| short | 680–759 | hidden | 14 | 88 | 600 |
+| regular | 760–899 | 50 | 18 | 88 | 600 |
+| tall | ≥900 | 50 | 22 | 88 | 660 |
+
+| Screen | Class | Card top | Card H | Image | Details |
+|---|---|---|---|---|---|
+| 640 | very short | 100 | 434 | 244 | 190 |
+| 667 | very short | 100 | 461 | 271 | 190 |
+| 700 | short | 102 | 484 | 288 | 196 |
+| 740 | short | 102 | 524 | 317 | 207 |
+| 800 | regular | 156 | 530 | 310 | 220 |
+| 844 | regular | 156 | 574 | 354 | 220 |
+| 932 | tall | 160 | 658 | 438 | 220 |
+| 1024 | tall | 160 | 660 | 440 | 220 |
+
+Details height is `clamp(190px, 28vh, 220px)`. Image is `flex-1` with
+`min-height: 180px` so it can't be squashed on very short devices.
 
 ---
 

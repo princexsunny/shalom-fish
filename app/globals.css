@@ -12,6 +12,68 @@
   --text: #0f172a;
   --muted: #64748b;
   --accent: #65a30d; /* lime-600 — readable on white */
+
+  /* ---------- layout budget (single source of truth, no magic numbers) ---------- */
+  --header-h: 44px;
+  --search-h: 50px;
+  --tabs-h: 44px;
+  --gap-top: 18px;
+  --gap-bottom: 12px;
+  --tiles-h: 88px;
+  --bottom-margin: 14px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --details-h: clamp(190px, 28vh, 220px);
+  --card-max-h: 600px;
+
+  /* derived */
+  --top-offset: calc(var(--header-h) + var(--search-h) + var(--tabs-h) + var(--gap-top));
+  --reserved: calc(
+    var(--top-offset) + var(--gap-bottom) + var(--tiles-h) + var(--bottom-margin) + var(--safe-bottom)
+  );
+
+  /* guarantees an 18px side margin on every phone */
+  --card-w: min(calc(100vw - 36px), 360px);
+  --card-h: min(calc(100svh - var(--reserved)), var(--card-max-h));
+}
+
+/* ---------- height classes (better Android/foldable coverage) ---------- */
+
+/* very short: drop the search row and tighten everything */
+@media (max-height: 679px) {
+  :root {
+    --search-h: 0px;
+    --gap-top: 12px;
+    --tiles-h: 80px;
+    --details-h: 190px;
+  }
+}
+/* short */
+@media (min-height: 680px) and (max-height: 759px) {
+  :root {
+    --search-h: 0px;
+    --gap-top: 14px;
+  }
+}
+/* regular — defaults apply */
+@media (min-height: 760px) and (max-height: 899px) {
+  :root {
+    --card-max-h: 600px;
+  }
+}
+/* tall */
+@media (min-height: 900px) {
+  :root {
+    --gap-top: 22px;
+    --card-max-h: 660px;
+  }
+}
+
+/* hide the search markup whenever its height is collapsed to 0 */
+@media (max-height: 759px) {
+  .search-row {
+    display: none;
+  }
 }
 
 * {
@@ -20,6 +82,7 @@
 
 html,
 body {
+  overscroll-behavior: none;
   padding: 0;
   margin: 0;
   background: var(--page);
@@ -310,32 +373,17 @@ html.lenis body {
   perspective: 1900px;
 }
 
-/* Short screens: drop the search row and live ticker so the product card keeps
-   a usable height. Everything shifts up by the height of the search row. */
-@media (max-height: 730px) {
-  .search-row {
-    display: none;
-  }
-  .cat-bar {
-    top: 50px !important;
-  }
-  .slide-card {
-    top: calc(102px + min(calc(100svh - 216px), 600px) / 2) !important;
-    height: min(calc(100svh - 216px), 600px) !important;
-  }
-}
-
 .slide-card {
   position: absolute;
   left: 50%;
   /* sits between the category pills and the dots/live ticker */
-  top: calc(152px + min(calc(100svh - 266px), 600px) / 2);
+  top: calc(var(--top-offset) + var(--card-h) / 2);
   display: flex;
   flex-direction: column;
   transform-style: preserve-3d;
   /* only transform + opacity are animated → stays on the GPU compositor */
   will-change: transform, opacity;
-  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease-out;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   contain: layout paint;
@@ -353,7 +401,7 @@ html.lenis body {
 .slide-reflection {
   position: absolute;
   left: 50%;
-  top: calc(152px + var(--cardH) - 2px);
+  top: calc(var(--top-offset) + var(--card-h) - 2px);
   width: var(--cardW);
   height: calc(var(--cardH) * 0.42);
   transform: translateX(-50%) scaleY(-1);

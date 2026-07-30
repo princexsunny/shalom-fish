@@ -6,15 +6,11 @@ import { getData } from "@/lib/store";
 import LiveStockWidget from "./LiveStockWidget";
 import LiveMediaWidget from "./LiveMediaWidget";
 
-// Fills the mobile screen (small side margins), caps out on tablet/desktop.
-// 360px → 324px card, 430px → 360px, desktop → 360px.
-const CARD_W = "clamp(300px, 90vw, 360px)";
-// leaves room for navbar + category pills above, and dots + live ticker below
-// EVERYTHING fits one mobile screen — no page scrolling.
-// Above the card: header 44 + search 50 = 94, pills 44 (@100) → card starts 152.
-// Below the card: 12px gap + 88px live tiles + 14px bottom margin = 114px.
-const TOP_OFFSET = 152;
-const CARD_H = "min(calc(100svh - 266px), 600px)";
+// Layout comes from CSS custom properties defined in globals.css (:root) so the
+// budget lives in ONE place and adapts per height class. No magic numbers here.
+const CARD_W = "var(--card-w)";
+const CARD_H = "var(--card-h)";
+const TOP_OFFSET = "var(--top-offset)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -261,7 +257,10 @@ export default function Hero3D({
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-lime-accent/[0.05] blur-[150px]" />
 
       {/* category nav — ONE pill container, only the active item highlighted */}
-      <div className="cat-bar absolute inset-x-0 top-[100px] z-[60] px-4">
+      <div
+        className="cat-bar absolute inset-x-0 z-[60] px-4"
+        style={{ top: "calc(var(--header-h) + var(--search-h) + 6px)" }}
+      >
         <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-slate-200/80 bg-white/80 p-1 shadow-sm backdrop-blur">
           {chipCats.map((c) => {
             const on = cat === c.id;
@@ -320,8 +319,8 @@ export default function Hero3D({
               {/* image takes ALL space left over after the details block, so it is
                   as tall as possible and the details can never be squeezed */}
               <div
-                className={`slide-media relative w-full overflow-hidden ${isA ? "min-h-0 flex-1" : "flex-none"}`}
-                style={isA ? undefined : { flexBasis: "100%" }}
+                className={`slide-media relative w-full overflow-hidden ${isA ? "flex-1" : "flex-none"}`}
+                style={isA ? { minHeight: "180px" } : { flexBasis: "100%" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -329,6 +328,8 @@ export default function Hero3D({
                   src={p.image || "/products/seer.jpg"}
                   alt={p.name}
                   draggable="false"
+                  loading={isA ? "eager" : "lazy"}
+                  decoding="async"
                   className="h-full w-full object-cover"
                 />
                 {/* no scrim on the active card — the photo stays fully clear */}
@@ -387,7 +388,7 @@ export default function Hero3D({
 
               {/* details (lower) */}
               {isA && (
-                <div className="flex h-[210px] flex-none flex-col justify-between border-t border-slate-100 bg-white px-4 py-3 sm:h-[220px]">
+                <div className="flex flex-none flex-col justify-between border-t border-slate-100 bg-white px-4 py-3" style={{ height: "var(--details-h)" }}>
                   <div>
                     <p data-rv className="text-[10px] font-semibold uppercase tracking-[0.18em] text-aqua/80">
                       {p.category}
@@ -465,7 +466,7 @@ export default function Hero3D({
                         oldPrice: Math.round((p.oldPrice || p.price) * w.mult),
                       });
                     }}
-                    className={`h-[52px] w-full shrink-0 rounded-[18px] px-5 text-[15px] font-bold uppercase tracking-wide transition active:scale-[0.98] hover:brightness-105 sm:h-[58px] ${
+                    className={`h-[56px] w-full shrink-0 rounded-[18px] px-5 text-[17px] font-bold uppercase tracking-wide transition active:scale-[0.98] hover:brightness-105 ${
                       cartIds && cartIds.has(p.id)
                         ? "bg-emerald-glow text-ink-900 ring-2 ring-lime-accent"
                         : "bg-lime-accent text-ink-900"
@@ -519,7 +520,7 @@ export default function Hero3D({
           the card width and splitting the space evenly. */}
       <div
         className="absolute left-1/2 z-40 -translate-x-1/2"
-        style={{ width: CARD_W, top: `calc(${TOP_OFFSET}px + ${CARD_H} + 12px)` }}
+        style={{ width: CARD_W, top: `calc(${TOP_OFFSET} + ${CARD_H} + var(--gap-bottom))`, paddingBottom: "var(--safe-bottom)" }}
       >
         <div className="flex gap-2.5">
           <LiveStockWidget
