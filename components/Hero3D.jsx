@@ -458,8 +458,10 @@ export default function Hero3D({
                         id: p.id,
                         name: p.name,
                         image: p.image,
+                        category: p.category,
                         weight: w.label,
                         price: Math.round(p.price * w.mult),
+                        oldPrice: Math.round((p.oldPrice || p.price) * w.mult),
                       });
                     }}
                     className={`h-[52px] w-full shrink-0 rounded-[18px] px-5 text-[15px] font-bold uppercase tracking-wide transition active:scale-[0.98] hover:brightness-105 sm:h-[58px] ${
