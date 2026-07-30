@@ -77,16 +77,18 @@ Details height is `clamp(190px, 28vh, 220px)`. Image is `flex-1` with
 
 | Property | Value |
 |---|---|
-| Width | `clamp(300px, 90vw, 360px)` |
-| Height | `min(100svh − 266px, 600px)` |
-| Radius | 32px (`rounded-4xl`) |
+| Width | `min(calc(100vw - 36px), 360px)` |
+| Height | `min(100svh − var(--reserved)), var(--card-max-h))` |
+| Radius | **20px** |
 | Border | 1px `#e2e8f0` |
 | Shadow | `shadow-xl` |
-| Image | **flex-1** — takes all leftover height |
-| Details | **fixed 210px** (220px on `sm+`) |
+| Image | **flex-1 min-h-0** — takes all leftover height |
+| Details | **content-driven** (`shrink-0`, auto height ≈ 239px) |
 
-> The details block is a **fixed height** and the image flexes. That's what
-> guarantees the Add to Cart button can never be clipped, on any screen.
+> ⚠️ The details block height is **CONTENT-DRIVEN**, not fixed. An earlier fixed
+> height (208px) clipped the Add to Cart button because the content measured
+> ~239px — a fixed box can only clip, never adapt. `shrink-0` + auto height means
+> it is always exactly as tall as it needs to be, and the image absorbs the rest.
 
 ### Details block internals (210px)
 | Element | Size |
@@ -134,7 +136,7 @@ everything shifts up 50px and the card reserve drops to 216px.
 
 | Property | Value |
 |---|---|
-| Height | 88px |
+| Height | 96px |
 | Width | `flex-1` each — together they match the card width |
 | Gap | 10px |
 | Radius | 16px (`rounded-2xl`) |
@@ -181,8 +183,10 @@ Pointer capture engages *only after* a real swipe, so button taps still work.
 | Orange | `#F97316` | discounts, low stock |
 | Red | `#DC2626` | remove / destructive only |
 | Teal | `#0E7490` | informational category labels |
-| Page | `#E8EDF0` | app background |
-| Surface | `#FFFFFF` | cards, tiles, header |
+| Page | `#DDE5EA` | app background (darkest) |
+| Category bar | `#DFE8ED` | chrome |
+| Header | `#E6EDF1` | chrome |
+| Surface | `#FFFFFF` | cards + live tiles (lightest, pops forward) |
 | Text | `#0F172A` / `#64748B` | primary / muted |
 
 ---
@@ -234,3 +238,26 @@ lib/
 ├─ firebase.js        env-based init, safe fallback
 └─ store.js           Firestore/Storage ↔ localStorage layer
 ```
+
+
+---
+
+## 11. Backend & security (current state)
+
+| Area | Status |
+|---|---|
+| Admin auth | **Firebase Auth** (email/password), real session |
+| Firestore `shalom/*` | public read · write only `uid == qa8OBPQ…Wk2` |
+| Firestore `orders` | admin read/update · **public create with validated shape** |
+| Storage `products/`, `media/` | public read · admin-only write |
+| Authorised domain | `shalom-fish.onrender.com` added |
+
+**Known gaps (deliberate, not bugs):**
+1. **No customer OTP** — anyone can submit an order for any phone number. COD
+   limits the exposure to a wasted trip; phone auth is the fix when you want it.
+2. **Sparkline + % change are demo data** — seeded per product id, stable but not
+   real history. Needs a `priceHistory` collection to be meaningful.
+3. **Media product link is a snapshot** — name/price are copied at upload time and
+   won't follow later product edits until relinked.
+4. **Admin is a single UID** — a second staff account is denied until its uid is
+   added to the rules.
