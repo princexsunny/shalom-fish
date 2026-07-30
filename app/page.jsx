@@ -26,6 +26,7 @@ export default function Home() {
   const [wishOpen, setWishOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [query, setQuery] = useState("");
 
   // remember the customer between visits (convenience only, not auth)
   useEffect(() => {
@@ -77,9 +78,19 @@ export default function Home() {
         onWishlist={() => setWishOpen(true)}
         onLogin={() => setLoginOpen(true)}
         user={user}
+        query={query}
+        onQuery={setQuery}
       />
       <main>
-        <Hero3D cat={cat} onCat={setCat} onAdd={addToCart} wishlist={wishlist} onToggleWish={toggleWish} cartIds={cartIds} />
+        <Hero3D
+          cat={cat}
+          onCat={setCat}
+          onAdd={addToCart}
+          wishlist={wishlist}
+          onToggleWish={toggleWish}
+          cartIds={cartIds}
+          query={query}
+        />
       </main>
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} setCart={setCart} />
       <WishlistDrawer

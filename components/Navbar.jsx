@@ -7,6 +7,8 @@ export default function Navbar({
   onWishlist = () => {},
   onLogin = () => {},
   user = null,
+  query = "",
+  onQuery = () => {},
 }) {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/70 bg-white/95 backdrop-blur">
@@ -26,8 +28,8 @@ export default function Navbar({
 
         <div className="flex-1" />
 
-        {/* only the essential actions — borderless icons, no button-soup */}
-        <div className="flex shrink-0 items-center gap-0.5">
+        {/* only the essential actions — borderless icons, generous spacing */}
+        <div className="flex shrink-0 items-center gap-2">
           <button
             onClick={onWishlist}
             aria-label="Wishlist"
@@ -58,12 +60,30 @@ export default function Navbar({
           <button
             onClick={onCart}
             aria-label="Cart"
-            className="relative ml-0.5 flex h-11 items-center gap-1.5 rounded-full bg-slate-900 px-3.5 text-white transition active:scale-95 hover:bg-slate-800"
+            className="relative flex h-11 items-center gap-1 rounded-full bg-slate-900 px-2.5 text-white transition active:scale-95 hover:bg-slate-800"
           >
             <span className="text-base">🛒</span>
             <span className="text-xs font-bold">{cartCount}</span>
           </button>
         </div>
+      </div>
+
+      {/* search — hidden on very short screens so the product card keeps its height */}
+      <div className="search-row mx-auto max-w-7xl px-4 pb-2.5">
+        <label className="flex h-10 items-center gap-2 rounded-full bg-slate-100 px-4 transition focus-within:bg-white focus-within:ring-2 focus-within:ring-lime-200">
+          <span className="text-sm text-slate-400">🔍</span>
+          <input
+            value={query}
+            onChange={(e) => onQuery(e.target.value)}
+            placeholder="Search fresh seafood…"
+            className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
+          />
+          {query && (
+            <button onClick={() => onQuery("")} aria-label="Clear search" className="text-slate-400 hover:text-slate-700">
+              ×
+            </button>
+          )}
+        </label>
       </div>
     </header>
   );

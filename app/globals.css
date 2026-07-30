@@ -309,11 +309,31 @@ html.lenis body {
 .slider-stage {
   perspective: 1900px;
 }
+
+/* Short screens: drop the search row and live ticker so the product card keeps
+   a usable height. Everything shifts up by the height of the search row. */
+@media (max-height: 730px) {
+  .search-row,
+  .live-row {
+    display: none;
+  }
+  .cat-bar {
+    top: 66px !important;
+  }
+  .slide-card {
+    top: calc(128px + min(calc(100svh - 200px), 560px) / 2) !important;
+    height: min(calc(100svh - 200px), 560px) !important;
+  }
+  .dots-row {
+    top: calc(128px + min(calc(100svh - 200px), 560px) + 12px) !important;
+  }
+}
+
 .slide-card {
   position: absolute;
   left: 50%;
   /* sits between the category pills and the dots/live ticker */
-  top: calc(138px + min(calc(100svh - 262px), 600px) / 2);
+  top: calc(182px + min(calc(100svh - 306px), 560px) / 2);
   display: flex;
   flex-direction: column;
   transform-style: preserve-3d;
@@ -337,7 +357,7 @@ html.lenis body {
 .slide-reflection {
   position: absolute;
   left: 50%;
-  top: calc(138px + var(--cardH) - 2px);
+  top: calc(182px + var(--cardH) - 2px);
   width: var(--cardW);
   height: calc(var(--cardH) * 0.42);
   transform: translateX(-50%) scaleY(-1);

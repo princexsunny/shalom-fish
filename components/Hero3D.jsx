@@ -9,10 +9,11 @@ import LiveMarketBox from "./LiveMarketBox";
 // 360px → 324px card, 430px → 360px, desktop → 360px.
 const CARD_W = "clamp(300px, 90vw, 360px)";
 // leaves room for navbar + category pills above, and dots + live ticker below
-// Vertical rhythm: header 58 + 16 gap + pill bar 44 + 20 gap = card starts at 138.
-// Below the card: 12 gap + dots 18 + 14 gap + live bar 68 + 12 margin = 124.
-const TOP_OFFSET = 138;
-const CARD_H = "min(calc(100svh - 262px), 600px)";
+// Vertical rhythm: header 58 + search 48 + 14 gap + pill bar 44 + 18 gap → 182.
+// Short screens hide the search + live bar (see globals.css) which frees ~130px,
+// so `svh` maths below uses the tall-screen worst case.
+const TOP_OFFSET = 182;
+const CARD_H = "min(calc(100svh - 306px), 560px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -37,7 +38,15 @@ function wrap(raw, n) {
   return r;
 }
 
-export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}, wishlist = {}, onToggleWish = () => {}, cartIds }) {
+export default function Hero3D({
+  cat = "All",
+  onCat = () => {},
+  onAdd = () => {},
+  wishlist = {},
+  onToggleWish = () => {},
+  cartIds,
+  query = "",
+}) {
   // admin-added products (saved in the browser) show up alongside the catalogue
   const [extra, setExtra] = useState([]);
   const [overrides, setOverrides] = useState({});
@@ -76,10 +85,17 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       .map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
     return [...extra, ...base];
   }, [extra, overrides, deleted]);
-  const list = useMemo(
-    () => (cat === "All" ? all : all.filter((p) => p.category === cat)),
-    [cat, all]
-  );
+  const list = useMemo(() => {
+    const byCat = cat === "All" ? all : all.filter((p) => p.category === cat);
+    const q = query.trim().toLowerCase();
+    if (!q) return byCat;
+    return byCat.filter(
+      (p) =>
+        (p.name || "").toLowerCase().includes(q) ||
+        (p.local || "").toLowerCase().includes(q) ||
+        (p.category || "").toLowerCase().includes(q)
+    );
+  }, [cat, all, query]);
   const N = list.length;
 
   const stockStatus = (id) => {
@@ -244,7 +260,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-lime-accent/[0.05] blur-[150px]" />
 
       {/* category nav — ONE pill container, only the active item highlighted */}
-      <div className="absolute inset-x-0 top-[74px] z-[60] px-4">
+      <div className="cat-bar absolute inset-x-0 top-[120px] z-[60] px-4">
         <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-slate-200/80 bg-white/80 p-1 shadow-sm backdrop-blur">
           {chipCats.map((c) => {
             const on = cat === c.id;
@@ -303,9 +319,11 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
               }}
             >
               {/* media (upper) */}
+              {/* image takes ALL space left over after the details block, so it is
+                  as tall as possible and the details can never be squeezed */}
               <div
-                className="slide-media relative w-full flex-none overflow-hidden"
-                style={{ flexBasis: isA ? "48%" : "100%" }}
+                className={`slide-media relative w-full overflow-hidden ${isA ? "min-h-0 flex-1" : "flex-none"}`}
+                style={isA ? undefined : { flexBasis: "100%" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -325,20 +343,22 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                       </span>
                     ) : (
                       p.premium && (
-                        <span className="absolute left-3 top-3 rounded-full bg-lime-accent/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-ink-900">
+                        <span className="absolute left-3 top-3 flex h-[30px] items-center rounded-full bg-lime-600 px-3 text-[11px] font-bold uppercase tracking-wide text-white">
                           Premium
                         </span>
                       )
                     )}
+                    {/* discount — smaller, pill-shaped */}
                     <span
-                      className={`absolute right-3 top-3 z-[7] rounded-full px-3 py-1 text-[11px] font-bold ${
-                        p.special ? "super-badge" : "bg-discount text-ink-900"
+                      className={`absolute right-3 top-3 z-[7] flex h-[30px] items-center rounded-full px-2.5 text-[11px] font-bold ${
+                        p.special ? "super-badge" : "bg-orange-500 text-white"
                       }`}
                     >
                       <span data-disc>{discountPct(p)}</span>% OFF
                     </span>
+                    {/* Today's Catch — brand green, not blue */}
                     {p.todaysCatch && (
-                      <span className="absolute bottom-3 left-3 rounded-full bg-aqua/90 px-3 py-1 text-[11px] font-semibold text-ink-900">
+                      <span className="absolute bottom-3 left-3 flex h-[30px] items-center rounded-full bg-emerald-700/95 px-3 text-[11px] font-semibold text-white">
                         Today&apos;s Catch
                       </span>
                     )}
@@ -349,10 +369,10 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                         e.stopPropagation();
                         onToggleWish(p);
                       }}
-                      className={`tap-target absolute bottom-3 right-3 z-10 grid h-11 w-11 place-items-center rounded-full text-lg ring-1 shadow-sm transition active:scale-90 ${
+                      className={`absolute bottom-3 right-3 z-10 grid h-12 w-12 place-items-center rounded-full text-lg shadow-md ring-1 transition active:scale-90 ${
                         wishlist[p.id]
-                          ? "bg-lime-accent text-ink-900 ring-lime-accent"
-                          : "bg-white/90 text-lime-600 ring-slate-200 hover:bg-white"
+                          ? "bg-lime-600 text-white ring-lime-600"
+                          : "bg-white text-lime-600 ring-slate-200 hover:bg-slate-50"
                       }`}
                     >
                       {wishlist[p.id] ? "♥" : "♡"}
@@ -369,7 +389,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
 
               {/* details (lower) */}
               {isA && (
-                <div className="flex min-h-0 flex-1 flex-col justify-between gap-1 border-t border-slate-100 bg-white px-4 py-2.5">
+                <div className="flex h-[210px] flex-none flex-col justify-between border-t border-slate-100 bg-white px-4 py-3 sm:h-[220px]">
                   <div>
                     <p data-rv className="text-[10px] font-semibold uppercase tracking-[0.18em] text-aqua/80">
                       {p.category}
@@ -418,13 +438,13 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
                       ))}
                     </div>
 
-                    <div data-rv className="mt-2 flex items-baseline gap-1.5">
-                      <span data-price className="text-xl font-bold text-lime-accent">
+                    <div data-rv className="mt-2.5 flex items-baseline gap-2.5">
+                      <span data-price className="text-[26px] font-extrabold leading-none text-lime-700">
                         ₹{Math.round(p.price * WEIGHTS[weightIdx].mult)}
                       </span>
-                      <span className="text-[11px] text-slate-500">/{WEIGHTS[weightIdx].label}</span>
+                      <span className="text-xs text-slate-500">/{WEIGHTS[weightIdx].label}</span>
                       {p.oldPrice > p.price && (
-                        <span className="ml-1 text-sm text-slate-400 line-through">
+                        <span className="text-sm text-slate-400 line-through">
                           ₹{Math.round(p.oldPrice * WEIGHTS[weightIdx].mult)}
                         </span>
                       )}
@@ -473,7 +493,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
 
       {/* tiny dot progress — directly under the card */}
       <div
-        className="pointer-events-auto absolute inset-x-0 z-30 flex justify-center gap-1.5 px-4"
+        className="dots-row pointer-events-auto absolute inset-x-0 z-30 flex justify-center gap-1.5 px-4"
         style={{ top: `calc(${TOP_OFFSET}px + ${CARD_H} + 12px)` }}
       >
         {list.map((_, k) => (
@@ -517,7 +537,7 @@ export default function Hero3D({ cat = "All", onCat = () => {}, onAdd = () => {}
       </button>
 
       {/* live fish market — centred below the dots */}
-      <div className="absolute inset-x-0 bottom-3 z-20 flex justify-center px-3 sm:bottom-4">
+      <div className="live-row absolute inset-x-0 bottom-3 z-20 flex justify-center px-3 sm:bottom-4">
         <LiveMarketBox items={list} onSelect={(idx) => goto(idx)} />
       </div>
 
