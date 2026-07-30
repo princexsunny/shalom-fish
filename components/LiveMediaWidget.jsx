@@ -1,30 +1,33 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getData } from "@/lib/store";
 
 /**
- * Live Media tile — an autoplaying PHOTO reel that runs entirely inside the 96px
- * tile. No video playback and no play button (removed on request), no tap to
- * open: everything the customer needs is visible in the box.
+ * Live Media tile — an AUTOPLAYING PLAYLIST that runs entirely inside the 96px
+ * tile. Videos DO play here; there is simply no play button, no pause control
+ * and no fullscreen viewer — the reel runs itself, so a control would only sit
+ * on top of a video that is already playing.
  *
- * Rules:
- *   • photos advance every PHOTO_MS with a cross-fade
- *   • a single photo just sits there (nothing to rotate to)
- *   • rotation stops when the tile scrolls out of view
- *   • uploaded VIDEOS are shown as their still poster frame, never played, so a
- *     shop that only uploaded clips still gets a picture instead of an empty box
+ * Playback rules:
+ *   • videos play to their natural end, then the next item comes up
+ *   • images hold for IMAGE_MS
+ *   • a long or broken clip is capped at MAX_VIDEO_MS so the reel never stalls
+ *   • a single item loops forever (no point cross-fading to itself)
+ *   • everything pauses when the tile scrolls out of view (saves battery/data)
  *
  * Tapping is optional: if the item is linked to a product, it jumps the
  * carousel to that fish. Unlinked items are inert, not fake buttons.
  */
 
-const PHOTO_MS = 4500; // how long each photo holds before the next one
+const IMAGE_MS = 4500; // how long a photo holds before the next item
+const MAX_VIDEO_MS = 15000; // safety cap — some encodes never fire "ended"
 
 export default function LiveMediaWidget({ onSelectProduct }) {
   const [media, setMedia] = useState([]);
   const [idx, setIdx] = useState(0);
   const [visible, setVisible] = useState(true);
   const boxRef = useRef(null);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     let alive = true;
@@ -40,17 +43,6 @@ export default function LiveMediaWidget({ onSelectProduct }) {
     };
   }, []);
 
-  // Stills only. A video contributes its poster frame if it has one; a video
-  // without a usable poster is dropped rather than rendered as a black square.
-  const photos = useMemo(
-    () =>
-      media
-        .map((m) => (m.type === "video" ? (m.thumbnail ? { ...m, url: m.thumbnail } : null) : m))
-        .filter((m) => m && m.url),
-    [media]
-  );
-  const count = photos.length;
-
   // pause when scrolled out of view
   useEffect(() => {
     const el = boxRef.current;
@@ -58,17 +50,35 @@ export default function LiveMediaWidget({ onSelectProduct }) {
     const io = new IntersectionObserver((e) => setVisible(e[0]?.isIntersecting ?? false), { threshold: 0.3 });
     io.observe(el);
     return () => io.disconnect();
-  }, [count]);
+  }, [media.length]);
 
+  const count = media.length;
   const next = useCallback(() => {
     setIdx((i) => (count ? (i + 1) % count : 0));
   }, [count]);
 
+  // advance timer — images on a fixed hold, videos on a safety cap only
+  // (their real trigger is onEnded, which usually fires first)
   useEffect(() => {
     if (count < 2 || !visible) return;
-    const t = setTimeout(next, PHOTO_MS);
+    const it = media[idx % count];
+    if (!it) return;
+    const ms =
+      it.type === "video"
+        ? Math.min(Math.max((it.duration || 0) * 1000 + 900, 6000), MAX_VIDEO_MS)
+        : IMAGE_MS;
+    const t = setTimeout(next, ms);
     return () => clearTimeout(t);
-  }, [idx, visible, count, next]);
+  }, [idx, visible, media, count, next]);
+
+  // keep the <video> in sync with visibility and the current slot
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = true;
+    if (visible) v.play().catch(() => {});
+    else v.pause();
+  }, [visible, idx, media]);
 
   // Always render something so the widget slot is visible — an empty placeholder
   // makes it obvious where uploaded media will appear.
@@ -76,7 +86,7 @@ export default function LiveMediaWidget({ onSelectProduct }) {
     return (
       <a
         href="/admin"
-        aria-label="Upload live photos in admin"
+        aria-label="Upload live media in admin"
         className="grid h-24 flex-1 place-items-center rounded-2xl border border-dashed border-slate-300 bg-white text-center transition hover:border-lime-400"
       >
         <span className="px-1 text-slate-400">
@@ -89,12 +99,11 @@ export default function LiveMediaWidget({ onSelectProduct }) {
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
-            <circle cx="12" cy="12" r="3.2" />
-            <path d="M17.5 9h.01" />
+            <rect x="2.5" y="6.5" width="13" height="11" rx="2.5" />
+            <path d="m15.5 11.2 6-3v7.6l-6-3z" />
           </svg>
           <span className="mt-1 block text-[8px] font-semibold leading-tight">
-            Live photos
+            Live media
             <br />
             coming soon
           </span>
@@ -103,7 +112,7 @@ export default function LiveMediaWidget({ onSelectProduct }) {
     );
   }
 
-  const item = photos[idx % count];
+  const item = media[idx % count];
   const linked = Boolean(item.productId && onSelectProduct);
 
   return (
@@ -113,23 +122,37 @@ export default function LiveMediaWidget({ onSelectProduct }) {
       role={linked ? "button" : undefined}
       tabIndex={linked ? 0 : undefined}
       onKeyDown={linked ? (e) => (e.key === "Enter" || e.key === " ") && onSelectProduct(item.productId) : undefined}
-      aria-label={linked ? `View ${item.productName || "product"}` : "Shop photos"}
+      aria-label={linked ? `View ${item.productName || "product"}` : "Shop media reel"}
       className={`relative h-24 flex-1 overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 ${
         linked ? "cursor-pointer transition active:scale-[0.98]" : ""
       }`}
     >
-      {/* keyed so each photo fades in cleanly instead of snapping */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        key={item.url || idx}
-        src={item.url}
-        alt={item.productName || item.title || "Shop photo"}
-        loading="lazy"
-        className="media-fade absolute inset-0 h-full w-full object-cover"
-      />
+      {/* keyed so each slot cross-fades in cleanly instead of snapping */}
+      <div key={item.url || idx} className="media-fade absolute inset-0">
+        {item.type === "video" ? (
+          <video
+            ref={videoRef}
+            src={item.url}
+            poster={item.thumbnail || undefined}
+            className="h-full w-full object-cover"
+            playsInline
+            muted
+            loop={count === 1}
+            preload="metadata"
+            onEnded={count > 1 ? next : undefined}
+            onError={count > 1 ? next : undefined}
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.url} alt={item.title || "Live"} loading="lazy" className="h-full w-full object-cover" />
+        )}
+      </div>
 
+      {/* Type chip. NOTE: this is an admin-uploaded clip, not a live stream —
+          a red "LIVE" dot would imply real-time broadcast, so we show the
+          media type + duration instead. */}
       <span className="absolute left-1.5 top-1.5 rounded-full bg-black/55 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-white ring-1 ring-white/25 backdrop-blur-md">
-        Photo
+        {item.type === "video" ? (item.duration ? `${item.duration}s` : "Video") : "Photo"}
       </span>
 
       {/* product name so the photo is unambiguous at a glance */}
@@ -139,11 +162,11 @@ export default function LiveMediaWidget({ onSelectProduct }) {
         </span>
       )}
 
-      {/* reel position — segment bars, capped so 20 photos don't turn the
+      {/* playlist position — segment bars, capped so 20 clips don't turn the
           bottom edge into a grey smear */}
       {count > 1 && (
         <span className="pointer-events-none absolute bottom-1.5 right-1.5 flex items-center gap-[3px]">
-          {photos.slice(0, 6).map((m, i) => (
+          {media.slice(0, 6).map((m, i) => (
             <span
               key={m.url || i}
               className={`h-[3px] rounded-full transition-all duration-300 ${
