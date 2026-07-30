@@ -23,7 +23,7 @@
   --bottom-margin: 14px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  --details-h: clamp(190px, 28vh, 220px);
+  --details-h: clamp(190px, 28svh, 220px);
   --card-max-h: 600px;
 
   /* derived */
@@ -66,6 +66,23 @@
   :root {
     --gap-top: 22px;
     --card-max-h: 660px;
+  }
+}
+
+/* Landscape phones: the card would be shorter than the details block, so drop
+   the live tiles and tighten the chrome instead of clipping the CTA. */
+@media (orientation: landscape) and (max-height: 560px) {
+  :root {
+    --search-h: 0px;
+    --tabs-h: 40px;
+    --gap-top: 8px;
+    --gap-bottom: 0px;
+    --tiles-h: 0px;
+    --bottom-margin: 10px;
+    --details-h: 172px;
+  }
+  .live-tiles {
+    display: none;
   }
 }
 

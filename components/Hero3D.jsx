@@ -307,7 +307,7 @@ export default function Hero3D({
           return (
             <article
               key={p.id}
-              className={`slide-card overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-xl ${isA ? "is-active" : ""} ${
+              className={`slide-card flex flex-col overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-xl ${isA ? "is-active" : ""} ${
                 isA && p.special ? "super-offer-card super-glow" : ""
               }`}
               style={cardStyle(pos)}
@@ -319,8 +319,17 @@ export default function Hero3D({
               {/* image takes ALL space left over after the details block, so it is
                   as tall as possible and the details can never be squeezed */}
               <div
-                className={`slide-media relative w-full overflow-hidden ${isA ? "flex-1" : "flex-none"}`}
-                style={isA ? { minHeight: "180px" } : { flexBasis: "100%" }}
+                className={`slide-media relative w-full overflow-hidden ${isA ? "min-h-0 flex-1" : "flex-none"}`}
+                style={
+                  isA
+                    ? {
+                        // A hard 180px floor would overflow the card in landscape /
+                        // on small foldables and push the CTA out. Cap the floor at
+                        // whatever height is actually left after the details block.
+                        minHeight: "min(180px, calc(var(--card-h) - var(--details-h)))",
+                      }
+                    : { flexBasis: "100%" }
+                }
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -388,7 +397,10 @@ export default function Hero3D({
 
               {/* details (lower) */}
               {isA && (
-                <div className="flex flex-none flex-col justify-between border-t border-slate-100 bg-white px-4 py-3" style={{ height: "var(--details-h)" }}>
+                <div
+                  className="flex shrink-0 flex-col justify-between border-t border-slate-100 bg-white px-4 py-3"
+                  style={{ height: "var(--details-h)", minHeight: "var(--details-h)" }}
+                >
                   <div>
                     <p data-rv className="text-[10px] font-semibold uppercase tracking-[0.18em] text-aqua/80">
                       {p.category}
@@ -519,7 +531,7 @@ export default function Hero3D({
       {/* Live tiles — flat, sitting UNDER the card with a small gap, matched to
           the card width and splitting the space evenly. */}
       <div
-        className="absolute left-1/2 z-40 -translate-x-1/2"
+        className="live-tiles absolute left-1/2 z-40 -translate-x-1/2"
         style={{ width: CARD_W, top: `calc(${TOP_OFFSET} + ${CARD_H} + var(--gap-bottom))`, paddingBottom: "var(--safe-bottom)" }}
       >
         <div className="flex gap-2.5">
