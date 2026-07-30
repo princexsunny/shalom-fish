@@ -342,22 +342,24 @@ export default function Hero3D({
                       </span>
                     ) : (
                       p.premium && (
-                        <span className="absolute left-3 top-3 flex h-[30px] items-center rounded-full bg-lime-600 px-3 text-[11px] font-bold uppercase tracking-wide text-white">
+                        <span className="absolute left-3 top-3 flex h-[30px] items-center rounded-full bg-lime-600/80 px-3 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg ring-1 ring-white/40 backdrop-blur-md">
                           Premium
                         </span>
                       )
                     )}
                     {/* discount — smaller, pill-shaped */}
                     <span
-                      className={`absolute right-3 top-3 z-[7] flex h-[30px] items-center rounded-full px-2.5 text-[11px] font-bold ${
-                        p.special ? "super-badge" : "bg-orange-500 text-white"
+                      className={`absolute right-3 top-3 z-[7] flex h-[30px] items-center rounded-full px-2.5 text-[11px] font-bold shadow-lg ${
+                        p.special
+                          ? "super-badge"
+                          : "bg-orange-500/80 text-white ring-1 ring-white/40 backdrop-blur-md"
                       }`}
                     >
                       <span data-disc>{discountPct(p)}</span>% OFF
                     </span>
                     {/* Today's Catch — brand green, not blue */}
                     {p.todaysCatch && (
-                      <span className="absolute bottom-3 left-3 flex h-[30px] items-center rounded-full bg-emerald-700/95 px-3 text-[11px] font-semibold text-white">
+                      <span className="absolute bottom-3 left-3 flex h-[30px] items-center rounded-full bg-emerald-800/60 px-3 text-[11px] font-semibold text-white shadow-lg ring-1 ring-white/35 backdrop-blur-md">
                         Today&apos;s Catch
                       </span>
                     )}
@@ -368,10 +370,10 @@ export default function Hero3D({
                         e.stopPropagation();
                         onToggleWish(p);
                       }}
-                      className={`absolute right-3 top-[52px] z-10 grid h-11 w-11 place-items-center rounded-full text-lg shadow-md ring-1 transition active:scale-90 ${
+                      className={`absolute right-3 top-[52px] z-10 grid h-11 w-11 place-items-center rounded-full text-lg shadow-lg ring-1 backdrop-blur-md transition active:scale-90 ${
                         wishlist[p.id]
-                          ? "bg-lime-600 text-white ring-lime-600"
-                          : "bg-white text-lime-600 ring-slate-200 hover:bg-slate-50"
+                          ? "bg-lime-500/85 text-white ring-white/50"
+                          : "bg-white/25 text-white ring-white/45 hover:bg-white/35"
                       }`}
                     >
                       {wishlist[p.id] ? "♥" : "♡"}

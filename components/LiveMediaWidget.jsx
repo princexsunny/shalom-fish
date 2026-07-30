@@ -84,7 +84,7 @@ export default function LiveMediaWidget() {
         ref={boxRef}
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Open live media"
+        aria-label="Open shop media"
         className="relative h-24 flex-1 overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 transition active:scale-[0.98]"
       >
         {item.type === "video" ? (
@@ -104,15 +104,28 @@ export default function LiveMediaWidget() {
           <img src={item.url} alt={item.title || "Live"} loading="lazy" className="h-full w-full object-cover" />
         )}
 
-        {/* LIVE chip */}
-        <span className="absolute left-1.5 top-1.5 flex items-center gap-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-white backdrop-blur">
-          <span className="h-1 w-1 rounded-full bg-red-500" /> Live
+        {/* Type chip. NOTE: this is an admin-uploaded clip, not a live stream —
+            a red "LIVE" dot would imply real-time broadcast, so we show the
+            media type + duration instead. */}
+        <span className="absolute left-1.5 top-1.5 flex items-center gap-1 rounded-full bg-black/55 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-white ring-1 ring-white/25 backdrop-blur-md">
+          {item.type === "video" ? (
+            <>
+              <svg viewBox="0 0 24 24" className="h-2 w-2" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              {item.duration ? `${item.duration}s` : "Video"}
+            </>
+          ) : (
+            "Photo"
+          )}
         </span>
 
         {item.type === "video" && (
           <span className="absolute inset-0 grid place-items-center">
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-black/45 text-[10px] text-white backdrop-blur">
-              ▶
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-white/25 text-white ring-1 ring-white/45 backdrop-blur-md">
+              <svg viewBox="0 0 24 24" className="ml-0.5 h-3 w-3" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
             </span>
           </span>
         )}
