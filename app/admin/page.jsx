@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { products as baseProducts } from "@/lib/products";
 import { getData, setData, uploadImage, uploadMedia, firebaseEnabled } from "@/lib/store";
+import { signIn, signOutAdmin, onAdminAuth, sendReset, authMessage } from "@/lib/adminAuth";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CATEGORY_OPTIONS = DEFAULT_CATS;
@@ -67,10 +68,15 @@ export default function AdminPage() {
   const [invCat, setInvCat] = useState("All");
   const [invSort, setInvSort] = useState("name");
 
-  // auth
+  // auth — real Firebase Auth when configured, legacy local gate otherwise
   const [authed, setAuthed] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const [adminUser, setAdminUser] = useState(null);
+  const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [pwErr, setPwErr] = useState("");
+  const [pwBusy, setPwBusy] = useState(false);
+  const [resetNote, setResetNote] = useState("");
   const [newPw, setNewPw] = useState("");
 
   // load from backend (Firestore if configured, else localStorage)
@@ -85,9 +91,6 @@ export default function AdminPage() {
       setLive(await getData("live", { enabled: true, speed: 2400 }));
       setMedia(await getData("media", []));
     })();
-    try {
-      if (sessionStorage.getItem("shalom_admin_authed") === "1") setAuthed(true);
-    } catch {}
   }, []);
 
   // Save to the backend and surface real failures (e.g. blocked by Firestore
@@ -160,6 +163,13 @@ export default function AdminPage() {
     persistMedia(next);
   };
 
+  /* ---------------- authentication ----------------
+     With Firebase configured this is REAL auth: Firestore/Storage rules require
+     a signed-in admin, so a bypass in the browser gets you nothing — the server
+     rejects the write. Without Firebase we fall back to the old local gate purely
+     so local dev works; that fallback is cosmetic only.                        */
+
+  // legacy local gate (no Firebase)
   const getPw = () => {
     try {
       return localStorage.getItem(LS_PW) || DEFAULT_PW;
@@ -167,25 +177,76 @@ export default function AdminPage() {
       return DEFAULT_PW;
     }
   };
-  const login = (e) => {
-    e.preventDefault();
-    if (pw === getPw()) {
-      setAuthed(true);
-      setPw("");
-      setPwErr("");
+
+  // watch Firebase auth state
+  useEffect(() => {
+    if (!firebaseEnabled) {
+      setAuthReady(true);
       try {
-        sessionStorage.setItem("shalom_admin_authed", "1");
+        if (sessionStorage.getItem("shalom_admin_authed") === "1") setAuthed(true);
       } catch {}
-    } else {
-      setPwErr("Incorrect password");
+      return;
+    }
+    return onAdminAuth((u) => {
+      setAdminUser(u);
+      setAuthed(!!u);
+      setAuthReady(true);
+    });
+  }, []);
+
+  const login = async (e) => {
+    e.preventDefault();
+    setPwErr("");
+    setResetNote("");
+
+    if (!firebaseEnabled) {
+      if (pw === getPw()) {
+        setAuthed(true);
+        setPw("");
+        try {
+          sessionStorage.setItem("shalom_admin_authed", "1");
+        } catch {}
+      } else {
+        setPwErr("Incorrect password");
+      }
+      return;
+    }
+
+    setPwBusy(true);
+    try {
+      await signIn(email, pw);
+      setPw("");
+    } catch (err) {
+      setPwErr(authMessage(err));
+    } finally {
+      setPwBusy(false);
     }
   };
-  const logout = () => {
+
+  const logout = async () => {
+    if (firebaseEnabled) {
+      await signOutAdmin();
+    } else {
+      try {
+        sessionStorage.removeItem("shalom_admin_authed");
+      } catch {}
+    }
     setAuthed(false);
-    try {
-      sessionStorage.removeItem("shalom_admin_authed");
-    } catch {}
+    setAdminUser(null);
   };
+
+  const forgotPassword = async () => {
+    setPwErr("");
+    if (!email.trim()) return setPwErr("Enter your email first");
+    try {
+      await sendReset(email);
+      setResetNote("Reset link sent — check your inbox");
+    } catch (err) {
+      setPwErr(authMessage(err));
+    }
+  };
+
+  // legacy-only: change the local gate password
   const changePw = (e) => {
     e.preventDefault();
     if (newPw.length < 4) {
@@ -410,42 +471,102 @@ export default function AdminPage() {
     "w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-900 ring-1 ring-slate-200 outline-none placeholder:text-slate-300 focus:ring-lime-accent/50";
 
   // ---- login gate ----
+  if (!authReady) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-slate-100">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-lime-600" />
+      </main>
+    );
+  }
+
   if (!authed) {
     return (
       <main className="grid min-h-screen place-items-center bg-slate-100 px-4 text-slate-900">
-        <form onSubmit={login} className="glass w-full max-w-sm rounded-4xl p-8 shadow-frost">
+        <form onSubmit={login} className="w-full max-w-sm rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
           <div className="mb-6 flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-lime-accent/15 text-lg text-lime-accent ring-1 ring-lime-accent/30">
-              ⌘
-            </span>
+            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-lime-600 text-lg text-white">⌘</span>
             <div>
-              <h1 className="font-display text-lg font-bold">Admin Login</h1>
-              <p className="text-xs tracking-widest text-aqua/70">SHALOM FISH</p>
+              <h1 className="font-display text-lg font-bold">Admin sign in</h1>
+              <p className="text-[11px] tracking-widest text-slate-400">SHALOM FISH</p>
             </div>
           </div>
-          <label className="block">
-            <span className="mb-1.5 block text-xs text-slate-500">Password</span>
-            <input
-              type="password"
-              autoFocus
-              value={pw}
-              onChange={(e) => {
-                setPw(e.target.value);
-                setPwErr("");
-              }}
-              className={inputCls}
-              placeholder="••••••••"
-            />
-          </label>
-          {pwErr && <p className="mt-2 text-sm text-red-300">{pwErr}</p>}
+
+          {firebaseEnabled ? (
+            <>
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Email</span>
+                <input
+                  type="email"
+                  autoComplete="username"
+                  autoFocus
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setPwErr("");
+                  }}
+                  className={inputCls}
+                  placeholder="you@example.com"
+                />
+              </label>
+              <label className="mt-3 block">
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Password</span>
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  value={pw}
+                  onChange={(e) => {
+                    setPw(e.target.value);
+                    setPwErr("");
+                  }}
+                  className={inputCls}
+                  placeholder="••••••••"
+                />
+              </label>
+            </>
+          ) : (
+            <label className="block">
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">Password</span>
+              <input
+                type="password"
+                autoFocus
+                value={pw}
+                onChange={(e) => {
+                  setPw(e.target.value);
+                  setPwErr("");
+                }}
+                className={inputCls}
+                placeholder="••••••••"
+              />
+            </label>
+          )}
+
+          {pwErr && <p className="mt-2 text-sm font-medium text-red-600">{pwErr}</p>}
+          {resetNote && <p className="mt-2 text-sm font-medium text-lime-700">{resetNote}</p>}
+
           <button
             type="submit"
-            className="mt-5 w-full rounded-2xl bg-lime-accent px-5 py-3 font-semibold text-ink-900 shadow-glow-lime transition hover:brightness-110"
+            disabled={pwBusy}
+            className="mt-5 h-12 w-full rounded-xl bg-lime-600 font-semibold text-white shadow-sm transition hover:bg-lime-700 disabled:opacity-60"
           >
-            Enter
+            {pwBusy ? "Signing in…" : "Sign in"}
           </button>
-          <p className="mt-4 text-center text-[11px] text-slate-300">Default password: shalom123</p>
-          <a href="/" className="mt-2 block text-center text-xs text-slate-500 hover:text-lime-accent">
+
+          {firebaseEnabled ? (
+            <button
+              type="button"
+              onClick={forgotPassword}
+              className="mt-3 block w-full text-center text-xs text-slate-500 hover:text-lime-700"
+            >
+              Forgot password?
+            </button>
+          ) : (
+            <p className="mt-4 rounded-xl bg-amber-50 px-3 py-2 text-[11px] text-amber-700 ring-1 ring-amber-200">
+              Firebase isn&apos;t connected, so this is the local dev gate only (default{" "}
+              <strong>shalom123</strong>). It offers no real protection.
+            </p>
+          )}
+
+          <a href="/" className="mt-3 block text-center text-xs text-slate-500 hover:text-lime-700">
             ← Back to store
           </a>
         </form>
@@ -465,10 +586,10 @@ export default function AdminPage() {
             <div>
               <h1 className="font-display text-xl font-bold">Shalom Fish · Admin</h1>
               <p className="text-xs tracking-widest text-slate-400">
-                STORE MANAGEMENT ·{" "}
-                <span className={firebaseEnabled ? "text-emerald-400" : "text-amber-400"}>
-                  {firebaseEnabled ? "FIREBASE" : "LOCAL"}
+                <span className={firebaseEnabled ? "text-emerald-600" : "text-amber-600"}>
+                  {firebaseEnabled ? "SECURED" : "LOCAL DEV"}
                 </span>
+                {adminUser?.email ? ` · ${adminUser.email}` : ""}
               </p>
             </div>
           </div>
@@ -1131,29 +1252,74 @@ export default function AdminPage() {
 
         {/* SETTINGS */}
         {tab === "settings" && (
-          <div className="glass max-w-md rounded-4xl p-6 shadow-frost">
-            <h2 className="font-display mb-4 text-lg font-semibold">Change admin password</h2>
-            <form onSubmit={changePw} className="grid gap-4">
-              <label className="block">
-                <span className="mb-1.5 block text-xs text-slate-500">New password</span>
-                <input
-                  type="password"
-                  value={newPw}
-                  onChange={(e) => setNewPw(e.target.value)}
-                  className={inputCls}
-                  placeholder="At least 4 characters"
-                />
-              </label>
-              <button
-                type="submit"
-                className="w-full rounded-2xl bg-lime-accent px-5 py-3 font-semibold text-ink-900 shadow-glow-lime transition hover:brightness-110"
-              >
-                Update password
-              </button>
-            </form>
-            <p className="mt-4 text-xs text-slate-400">
-              Stored in this browser. Default is <span className="text-lime-accent">shalom123</span> until changed.
-            </p>
+          <div className="max-w-md space-y-4">
+            {firebaseEnabled ? (
+              <>
+                <div className="rounded-3xl border border-slate-200 bg-white p-6">
+                  <h2 className="font-display mb-1 text-lg font-semibold">Signed in</h2>
+                  <p className="mb-4 text-xs text-slate-500">{adminUser?.email}</p>
+                  <div className="rounded-xl bg-emerald-50 px-3 py-2.5 text-[11px] leading-relaxed text-emerald-800 ring-1 ring-emerald-200">
+                    <strong>Server-enforced security.</strong> Firestore and Storage rules require this signed-in
+                    account, so product, stock and media changes cannot be made by anyone else — even with browser
+                    devtools.
+                  </div>
+                  <button
+                    onClick={logout}
+                    className="mt-4 h-11 w-full rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  >
+                    Sign out
+                  </button>
+                </div>
+
+                <div className="rounded-3xl border border-slate-200 bg-white p-6">
+                  <h3 className="mb-1 text-sm font-semibold text-slate-800">Change password</h3>
+                  <p className="mb-3 text-xs text-slate-500">
+                    We&apos;ll email a secure reset link to {adminUser?.email}. Passwords are handled by Firebase and
+                    never stored in this app.
+                  </p>
+                  <button
+                    onClick={async () => {
+                      try {
+                        await sendReset(adminUser?.email || "");
+                        setToast("Reset link sent \u2713");
+                      } catch (err) {
+                        setToast(authMessage(err));
+                      }
+                      setTimeout(() => setToast(""), 3000);
+                    }}
+                    className="h-11 w-full rounded-xl bg-lime-600 text-sm font-semibold text-white transition hover:bg-lime-700"
+                  >
+                    Email me a reset link
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="rounded-3xl border border-slate-200 bg-white p-6">
+                <h2 className="font-display mb-4 text-lg font-semibold">Local dev password</h2>
+                <div className="mb-4 rounded-xl bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-800 ring-1 ring-amber-200">
+                  Firebase isn&apos;t connected, so this gate is <strong>cosmetic only</strong> and offers no real
+                  protection. Add your Firebase keys to enable real authentication.
+                </div>
+                <form onSubmit={changePw} className="grid gap-4">
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs text-slate-500">New password</span>
+                    <input
+                      type="password"
+                      value={newPw}
+                      onChange={(e) => setNewPw(e.target.value)}
+                      className={inputCls}
+                      placeholder="At least 4 characters"
+                    />
+                  </label>
+                  <button
+                    type="submit"
+                    className="h-11 w-full rounded-xl bg-lime-600 text-sm font-semibold text-white transition hover:bg-lime-700"
+                  >
+                    Update password
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         )}
       </div>

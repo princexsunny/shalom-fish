@@ -61,8 +61,44 @@ service firebase.storage {
 ```
 ⚠️ If `media/` is missing from these rules, **video and photo uploads in the admin
 Media tab will fail** with `storage/unauthorized`.
-⚠️ These allow public writes (fine for a demo/prototype). For a real store, add Firebase
-Authentication and restrict `write` to signed-in admins.
+### 🔒 Locked-down rules (use these once you've created your admin user)
+
+Public **read** (customers browse), admin-only **write**. Replace `YOUR_ADMIN_UID`
+with the UID from Authentication → Users.
+
+**Firestore:**
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /shalom/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == 'YOUR_ADMIN_UID';
+    }
+  }
+}
+```
+**Storage:**
+```
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /products/{file} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == 'YOUR_ADMIN_UID';
+    }
+    match /media/{file} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == 'YOUR_ADMIN_UID';
+    }
+  }
+}
+```
+
+> Pinning to your UID is stronger than `request.auth != null`: because the
+> Email/Password provider allows self-signup via the API, *anyone* could create an
+> account and would then satisfy `!= null`. Restricting to your UID means only you
+> can write.
 
 ---
 
