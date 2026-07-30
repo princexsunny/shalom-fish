@@ -4,6 +4,43 @@ import { products } from "@/lib/products";
 import { getData } from "@/lib/store";
 
 const ROTATE_MS = 4000;
+const FULL_STOCK = 30; // kg treated as "full" for the stock bar
+
+/** Stable pseudo price series for the sparkline (demo data — replace with real
+ *  price history when you start storing it). Seeded from the id so it never
+ *  flickers between renders. */
+function series(id, price, points = 12) {
+  let seed = String(id)
+    .split("")
+    .reduce((a, c) => a + c.charCodeAt(0), 7);
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff - 0.5);
+  const out = [];
+  let v = price * 0.94;
+  for (let i = 0; i < points; i++) {
+    v += price * 0.02 * rnd();
+    out.push(v);
+  }
+  out[points - 1] = price;
+  return out;
+}
+
+function Sparkline({ data, up }) {
+  const w = 100;
+  const h = 22;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const span = max - min || 1;
+  const pts = data.map((v, i) => [(i / (data.length - 1)) * w, h - ((v - min) / span) * (h - 3) - 1.5]);
+  const line = pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+  const area = `${line} L${w} ${h} L0 ${h} Z`;
+  const stroke = up ? "#059669" : "#ef4444";
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-[22px] w-full">
+      <path d={area} fill={stroke} opacity="0.12" />
+      <path d={line} fill="none" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 export default function LiveStockWidget({ onSelect }) {
   const [stock, setStock] = useState({});
@@ -12,6 +49,8 @@ export default function LiveStockWidget({ onSelect }) {
   const [deleted, setDeleted] = useState([]);
   const [i, setI] = useState(0);
   const [fade, setFade] = useState(true);
+  const [updatedAt, setUpdatedAt] = useState(null);
+  const [ago, setAgo] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -27,6 +66,7 @@ export default function LiveStockWidget({ onSelect }) {
       setExtra(Array.isArray(e) ? e : []);
       setOverrides(ov || {});
       setDeleted(del || []);
+      setUpdatedAt(Date.now());
     };
     load();
     const t = setInterval(load, 30000);
@@ -38,22 +78,30 @@ export default function LiveStockWidget({ onSelect }) {
     };
   }, []);
 
+  // "Updated Ns" counter
+  useEffect(() => {
+    if (!updatedAt) return;
+    const t = setInterval(() => setAgo(Math.round((Date.now() - updatedAt) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, [updatedAt]);
+
   const list = useMemo(() => {
-    const base = products
+    const catalogue = products
       .filter((p) => !deleted.includes(p.id))
       .map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
-    return [...extra, ...base]
+    return [...extra, ...catalogue]
       .map((p) => {
-        // Movement vs the previous list price. Where there's no old price we
-        // derive a small stable pseudo-delta from the id so it doesn't flicker
-        // on every render (demo data — swap for real history when you have it).
         const realDelta = p.oldPrice && p.oldPrice !== p.price ? p.price - p.oldPrice : null;
-        const seed = String(p.id).split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+        const seed = String(p.id)
+          .split("")
+          .reduce((a, c) => a + c.charCodeAt(0), 0);
         const delta = realDelta !== null ? realDelta : (seed % 27) - 13;
+        const pct = p.price ? (delta / p.price) * 100 : 0;
         return {
           ...p,
           qty: stock[p.id] !== undefined ? stock[p.id] : 20,
           delta,
+          pct,
           up: delta >= 0,
         };
       })
@@ -62,7 +110,6 @@ export default function LiveStockWidget({ onSelect }) {
       .slice(0, 8);
   }, [extra, overrides, deleted, stock]);
 
-  // rotate with a short fade
   useEffect(() => {
     if (list.length < 2) return;
     const t = setInterval(() => {
@@ -70,7 +117,7 @@ export default function LiveStockWidget({ onSelect }) {
       setTimeout(() => {
         setI((v) => (v + 1) % list.length);
         setFade(true);
-      }, 220);
+      }, 200);
     }, ROTATE_MS);
     return () => clearInterval(t);
   }, [list.length]);
@@ -78,60 +125,66 @@ export default function LiveStockWidget({ onSelect }) {
   const p = list[i % (list.length || 1)];
   if (!p) return null;
 
+  const pctStock = Math.max(6, Math.min(100, (p.qty / FULL_STOCK) * 100));
+  const spark = series(p.id, p.price);
+  const hot = p.qty < 8 || p.pct > 3;
+
   return (
     <button
       type="button"
       onClick={() => onSelect?.(p.id)}
-      aria-label={`${p.name}, ${p.qty} kg available`}
-      className="flex h-24 flex-1 flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white px-2.5 py-2 text-left transition active:scale-[0.98] hover:border-lime-300"
+      aria-label={`${p.name}, ₹${p.price}, ${p.qty} kg left`}
+      className="flex h-24 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white px-2.5 py-1.5 text-left transition active:scale-[0.98] hover:border-lime-300"
     >
-      <div className="flex items-center gap-1.5">
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime-500 opacity-75" />
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-lime-500" />
+      {/* live + updated */}
+      <div className="flex items-center gap-1">
+        <span className="relative flex h-1.5 w-1.5 shrink-0">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
+          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500" />
         </span>
-        <span className="text-[8px] font-bold uppercase tracking-[0.16em] text-slate-500">Live Stock</span>
+        <span className="text-[7px] font-bold uppercase tracking-[0.14em] text-slate-500">Live</span>
+        {hot && <span className="text-[7px] font-bold text-orange-600">🔥</span>}
+        <span className="ml-auto text-[7px] font-medium text-slate-400">{ago}s</span>
       </div>
 
-      <div className={`transition-opacity duration-200 ${fade ? "opacity-100" : "opacity-0"}`}>
-        <div className="flex items-center gap-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={p.image || "/products/seer.jpg"}
-            alt=""
-            loading="lazy"
-            className="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200"
-          />
-          <span className="min-w-0 flex-1">
-            {/* name */}
-            <span className="block truncate text-[10px] font-bold leading-tight text-slate-800">{p.name}</span>
+      <div className={`min-h-0 flex-1 transition-opacity duration-200 ${fade ? "opacity-100" : "opacity-0"}`}>
+        {/* name */}
+        <p className="truncate text-[9px] font-bold leading-tight text-slate-800">{p.name}</p>
 
-            {/* price + movement */}
-            <span className="flex items-baseline gap-1">
-              <span className="text-[13px] font-extrabold leading-tight text-slate-900">₹{p.price}</span>
-              <span className="text-[8px] text-slate-400">/{p.unit}</span>
-              <span
-                className={`ml-auto flex items-center gap-0.5 text-[9px] font-bold leading-none ${
-                  p.up ? "text-emerald-600" : "text-red-500"
-                }`}
-                title={p.up ? "Price up since yesterday" : "Price down since yesterday"}
-              >
-                {p.up ? "▲" : "▼"}
-                {Math.abs(p.delta)}
-              </span>
-            </span>
+        {/* price + % change */}
+        <div className="flex items-baseline gap-1">
+          <span className="text-[13px] font-extrabold leading-none text-slate-900">
+            ₹{p.price.toLocaleString("en-IN")}
+          </span>
+          <span
+            className={`text-[8px] font-bold leading-none ${p.up ? "text-emerald-600" : "text-red-500"}`}
+          >
+            {p.up ? "▲" : "▼"}
+            {Math.abs(p.pct).toFixed(1)}%
+          </span>
+        </div>
 
-            {/* stock */}
-            <span className="flex items-center gap-1">
-              <span
-                className={`text-[11px] font-extrabold leading-tight ${
-                  p.qty < 8 ? "text-orange-600" : "text-lime-700"
-                }`}
-              >
-                {p.qty} kg
-              </span>
-              <span className="text-[8px] text-slate-400">{p.qty < 8 ? "low" : "available"}</span>
-            </span>
+        {/* sparkline */}
+        <div className="-mx-0.5 mt-0.5">
+          <Sparkline data={spark} up={p.up} />
+        </div>
+
+        {/* stock bar */}
+        <div className="flex items-center gap-1.5">
+          <span className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200">
+            <span
+              className={`block h-full rounded-full transition-all duration-500 ${
+                p.qty < 8 ? "bg-orange-500" : "bg-lime-600"
+              }`}
+              style={{ width: `${pctStock}%` }}
+            />
+          </span>
+          <span
+            className={`shrink-0 text-[8px] font-bold leading-none ${
+              p.qty < 8 ? "text-orange-600" : "text-slate-600"
+            }`}
+          >
+            {p.qty}kg
           </span>
         </div>
       </div>
