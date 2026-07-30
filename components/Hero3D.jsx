@@ -11,11 +11,12 @@ import LiveMediaWidget from "./LiveMediaWidget";
 const CARD_W = "clamp(300px, 90vw, 360px)";
 // leaves room for navbar + category pills above, and dots + live ticker below
 // Header 58 + search 48 + 14 gap + pill bar 44 + 18 gap → card starts at 182.
-// Card runs almost to the bottom. The 90px live widgets sit 16px from the bottom
-// and overlap only the card's last ~6px, so they never cover the Add to Cart
-// button (that was the trap with a truly full-height card).
+// Below the card we must clear: dots (~30) + the 90px live widgets + 16px inset
+// + a little slack for the browser's floating toolbar. Overlapping the widgets
+// onto the card looked good in theory but covered the Add to Cart button, so the
+// card now ends above them.
 const TOP_OFFSET = 182;
-const CARD_H = "min(calc(100svh - 282px), 620px)";
+const CARD_H = "min(calc(100svh - 330px), 600px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -537,8 +538,11 @@ export default function Hero3D({
         <span className="text-[6px] leading-none text-slate-400">/{String(N).padStart(2, "0")}</span>
       </button>
 
-      {/* floating widgets — overlap the card slightly for a layered feel */}
-      <div className="absolute bottom-4 left-4 z-40">
+      {/* floating widgets — bottom corners, clear of the CTA and the browser bar */}
+      <div
+        className="absolute left-4 z-40"
+        style={{ bottom: "calc(16px + env(safe-area-inset-bottom, 0px))" }}
+      >
         <LiveStockWidget
           onSelect={(id) => {
             const k = list.findIndex((p) => p.id === id);
@@ -546,7 +550,10 @@ export default function Hero3D({
           }}
         />
       </div>
-      <div className="absolute bottom-4 right-4 z-40">
+      <div
+        className="absolute right-4 z-40"
+        style={{ bottom: "calc(16px + env(safe-area-inset-bottom, 0px))" }}
+      >
         <LiveMediaWidget />
       </div>
 
