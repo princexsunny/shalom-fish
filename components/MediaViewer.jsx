@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 /**
  * Fullscreen media viewer.
@@ -14,6 +15,8 @@ export default function MediaViewer({ items = [], index = 0, onClose = () => {} 
   const [progress, setProgress] = useState(0);
   const videoRef = useRef(null);
   const touch = useRef({ x: 0, y: 0, active: false });
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const n = items.length;
   const item = items[i];
@@ -54,7 +57,7 @@ export default function MediaViewer({ items = [], index = 0, onClose = () => {} 
     else v.pause();
   }, [playing, muted, i]);
 
-  if (!item) return null;
+  if (!item || !mounted) return null;
 
   const onTouchStart = (e) => {
     const t = e.touches[0];
@@ -70,7 +73,11 @@ export default function MediaViewer({ items = [], index = 0, onClose = () => {} 
     else if (dy > 90) onClose();
   };
 
-  return (
+  /* Rendered through a PORTAL to <body>. The widget sits inside a container with
+     `-translate-x-1/2`, and a transformed ancestor becomes the containing block for
+     `position: fixed` — which trapped this overlay inside a ~155px tile and made it
+     look blank. Portalling to body escapes that. */
+  return createPortal(
     <div className="fixed inset-0 z-[95] flex flex-col bg-black" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       {/* top bar */}
       <div className="flex items-center justify-between px-4 py-3 text-white">
@@ -105,7 +112,7 @@ export default function MediaViewer({ items = [], index = 0, onClose = () => {} 
             key={item.url}
             src={item.url}
             poster={item.thumbnail || undefined}
-            className="max-h-full max-w-full"
+            className="max-h-full max-w-full object-contain"
             playsInline
             loop
             autoPlay
@@ -171,6 +178,7 @@ export default function MediaViewer({ items = [], index = 0, onClose = () => {} 
         <p className="text-sm font-semibold">{item.title || (item.type === "video" ? "Live video" : "Live photo")}</p>
         {n > 1 && <p className="mt-1 text-[11px] text-white/50">Swipe to browse · swipe down to close</p>}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

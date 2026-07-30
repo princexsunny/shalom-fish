@@ -120,13 +120,13 @@ export default function LiveMediaWidget() {
           )}
         </span>
 
+        {/* Small corner badge rather than a centred overlay — a full-tile play
+            button covered the video that's already playing. */}
         {item.type === "video" && (
-          <span className="absolute inset-0 grid place-items-center">
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-white/25 text-white ring-1 ring-white/45 backdrop-blur-md">
-              <svg viewBox="0 0 24 24" className="ml-0.5 h-3 w-3" fill="currentColor">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </span>
+          <span className="pointer-events-none absolute bottom-1.5 left-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/45 text-white ring-1 ring-white/30 backdrop-blur-sm">
+            <svg viewBox="0 0 24 24" className="ml-px h-2.5 w-2.5" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
           </span>
         )}
 
