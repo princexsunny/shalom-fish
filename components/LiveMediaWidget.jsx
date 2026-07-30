@@ -48,11 +48,22 @@ export default function LiveMediaWidget() {
       <a
         href="/admin"
         aria-label="Upload live media in admin"
-        className="grid h-[88px] flex-1 place-items-center rounded-2xl border border-dashed border-slate-300 bg-white text-center transition hover:border-lime-400"
+        className="grid h-24 flex-1 place-items-center rounded-2xl border border-dashed border-slate-300 bg-white text-center transition hover:border-lime-400"
       >
-        <span className="px-1">
-          <span className="block text-lg">🎥</span>
-          <span className="mt-0.5 block text-[8px] font-semibold leading-tight text-slate-400">
+        <span className="px-1 text-slate-400">
+          <svg
+            viewBox="0 0 24 24"
+            className="mx-auto h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="2.5" y="6.5" width="13" height="11" rx="2.5" />
+            <path d="m15.5 11.2 6-3v7.6l-6-3z" />
+          </svg>
+          <span className="mt-1 block text-[8px] font-semibold leading-tight">
             Live media
             <br />
             coming soon
@@ -74,7 +85,7 @@ export default function LiveMediaWidget() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open live media"
-        className="relative h-[88px] flex-1 overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 transition active:scale-[0.98]"
+        className="relative h-24 flex-1 overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 transition active:scale-[0.98]"
       >
         {item.type === "video" ? (
           <video

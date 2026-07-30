@@ -19,7 +19,7 @@
   --tabs-h: 38px;
   --gap-top: 20px;
   --gap-bottom: 16px;
-  --tiles-h: 88px;
+  --tiles-h: 96px;
   --bottom-margin: 14px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
@@ -44,7 +44,7 @@
     --search-h: 0px;
     --gap-top: 14px;
     --gap-bottom: 12px;
-    --tiles-h: 80px;
+    --tiles-h: 88px;
   }
 }
 /* short */

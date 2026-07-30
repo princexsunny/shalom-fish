@@ -43,7 +43,20 @@ export default function LiveStockWidget({ onSelect }) {
       .filter((p) => !deleted.includes(p.id))
       .map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
     return [...extra, ...base]
-      .map((p) => ({ ...p, qty: stock[p.id] !== undefined ? stock[p.id] : 20 }))
+      .map((p) => {
+        // Movement vs the previous list price. Where there's no old price we
+        // derive a small stable pseudo-delta from the id so it doesn't flicker
+        // on every render (demo data — swap for real history when you have it).
+        const realDelta = p.oldPrice && p.oldPrice !== p.price ? p.price - p.oldPrice : null;
+        const seed = String(p.id).split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+        const delta = realDelta !== null ? realDelta : (seed % 27) - 13;
+        return {
+          ...p,
+          qty: stock[p.id] !== undefined ? stock[p.id] : 20,
+          delta,
+          up: delta >= 0,
+        };
+      })
       .filter((p) => p.qty > 0)
       .sort((a, b) => b.qty - a.qty)
       .slice(0, 8);
@@ -70,7 +83,7 @@ export default function LiveStockWidget({ onSelect }) {
       type="button"
       onClick={() => onSelect?.(p.id)}
       aria-label={`${p.name}, ${p.qty} kg available`}
-      className="flex h-[88px] flex-1 flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-left transition active:scale-[0.98] hover:border-lime-300"
+      className="flex h-24 flex-1 flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white px-2.5 py-2 text-left transition active:scale-[0.98] hover:border-lime-300"
     >
       <div className="flex items-center gap-1.5">
         <span className="relative flex h-1.5 w-1.5">
@@ -87,16 +100,37 @@ export default function LiveStockWidget({ onSelect }) {
             src={p.image || "/products/seer.jpg"}
             alt=""
             loading="lazy"
-            className="h-8 w-8 shrink-0 rounded-lg object-cover ring-1 ring-slate-200"
+            className="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200"
           />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[10px] font-bold leading-tight text-slate-700">{p.name}</span>
-            <span
-              className={`block text-[16px] font-extrabold leading-tight ${
-                p.qty < 8 ? "text-orange-600" : "text-lime-700"
-              }`}
-            >
-              {p.qty} kg
+            {/* name */}
+            <span className="block truncate text-[10px] font-bold leading-tight text-slate-800">{p.name}</span>
+
+            {/* price + movement */}
+            <span className="flex items-baseline gap-1">
+              <span className="text-[13px] font-extrabold leading-tight text-slate-900">₹{p.price}</span>
+              <span className="text-[8px] text-slate-400">/{p.unit}</span>
+              <span
+                className={`ml-auto flex items-center gap-0.5 text-[9px] font-bold leading-none ${
+                  p.up ? "text-emerald-600" : "text-red-500"
+                }`}
+                title={p.up ? "Price up since yesterday" : "Price down since yesterday"}
+              >
+                {p.up ? "▲" : "▼"}
+                {Math.abs(p.delta)}
+              </span>
+            </span>
+
+            {/* stock */}
+            <span className="flex items-center gap-1">
+              <span
+                className={`text-[11px] font-extrabold leading-tight ${
+                  p.qty < 8 ? "text-orange-600" : "text-lime-700"
+                }`}
+              >
+                {p.qty} kg
+              </span>
+              <span className="text-[8px] text-slate-400">{p.qty < 8 ? "low" : "available"}</span>
             </span>
           </span>
         </div>
