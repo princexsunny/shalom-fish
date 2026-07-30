@@ -269,13 +269,10 @@ export default function Hero3D({
                 key={c.id}
                 onClick={() => onCat(c.id)}
                 title={c.id}
-                className={`flex h-9 shrink-0 snap-start items-center gap-1 whitespace-nowrap rounded-full px-3 text-[11px] font-semibold outline-none transition-all duration-300 focus:outline-none sm:text-xs ${
-                  on
-                    ? "bg-lime-600 text-white shadow-sm"
-                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                className={`flex h-9 shrink-0 snap-start items-center whitespace-nowrap rounded-full px-3.5 text-[11px] font-bold uppercase tracking-wide outline-none transition-all duration-300 focus:outline-none ${
+                  on ? "bg-lime-600 text-white shadow-sm" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                 }`}
               >
-                {on && <span className="text-[9px]">●</span>}
                 {c.label}
               </button>
             );
