@@ -147,14 +147,13 @@ everything shifts up 50px and the card reserve drops to 216px.
 name 10px bold · quantity **16px extrabold** (orange under 8kg).
 Rotates every **4s** with a 220ms fade. Tapping jumps the carousel to that fish.
 
-**Live Media:** an **autoplaying playlist inside the tile** — no tap needed and
-no fullscreen viewer. Videos play to their natural end (`onEnded`), photos hold
-**4.5s**, then it advances and cross-fades (`.media-fade`, 350ms).
-A long or broken clip is capped at **15s** so the reel can't stall; a single item
-just loops. Muted, `playsInline`, `object-cover`; pauses off-screen
-(`IntersectionObserver`). Segment bars bottom-right show position (max 6 + "+N").
-Tapping is only active when the item is **linked to a product** — then it jumps
-the carousel to that fish. Unlinked items are inert, not fake buttons.
+**Live Media:** an **autoplaying PHOTO reel inside the tile** — no video
+playback, no play button, no tap needed and no fullscreen viewer. Photos hold
+**4.5s** then cross-fade (`.media-fade`, 350ms); a single photo just sits still.
+Rotation stops off-screen (`IntersectionObserver`). Uploaded *videos* are shown
+as their **still poster frame only** and never play. Segment bars bottom-right
+show position (max 6 + "+N"). Tapping is only active when the item is **linked to
+a product** — then it jumps the carousel to that fish. Unlinked items are inert.
 
 ---
 
