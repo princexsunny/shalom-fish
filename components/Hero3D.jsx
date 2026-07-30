@@ -252,7 +252,7 @@ export default function Hero3D({
   return (
     <section id="home" className="relative h-[100svh] w-full overflow-hidden">
       {/* ambient wash */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_-10%,#dfeee6_0%,#e6ecf0_45%,#e8edf0_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_-10%,#d3e3da_0%,#dae3e9_45%,#dde5ea_100%)]" />
       <div className="pointer-events-none absolute -left-40 top-1/3 h-[32rem] w-[32rem] rounded-full bg-emerald-glow/[0.08] blur-[150px]" />
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-lime-accent/[0.05] blur-[150px]" />
 
@@ -261,7 +261,7 @@ export default function Hero3D({
         className="cat-bar absolute inset-x-0 z-[60] px-4"
         style={{ top: "calc(var(--header-h) + var(--search-h) + 6px)" }}
       >
-        <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-slate-200/80 bg-white/80 p-[3px] shadow-sm backdrop-blur">
+        <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-slate-300/70 bg-[#dfe8ed]/90 p-[3px] shadow-sm backdrop-blur-md">
           {chipCats.map((c) => {
             const on = cat === c.id;
             return (

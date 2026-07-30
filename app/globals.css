@@ -4,7 +4,7 @@
 
 :root {
   /* light theme surfaces — page is a soft tinted grey so white cards lift */
-  --page: #e8edf0;
+  --page: #dde5ea;  /* slightly darker so white cards/chrome separate */
   --ink-900: #ffffff;
   --ink-800: #f8fafc;
   --ink-700: #f1f5f9;
