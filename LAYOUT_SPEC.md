@@ -52,10 +52,14 @@ browser toolbars), which is why the layout never gets cut off by the URL bar.
 ### Height classes
 | Class | Range | search | gap-top | tiles | card max |
 |---|---|---|---|---|---|
-| very short | ≤679 | hidden | 12 | 80 | 600 |
-| short | 680–759 | hidden | 14 | 88 | 600 |
-| regular | 760–899 | 50 | 18 | 88 | 600 |
-| tall | ≥900 | 50 | 22 | 88 | 660 |
+| very short | ≤679 | hidden | 20 | 88 | 560 |
+| short | 680–759 | hidden | 22 | 96 | 560 |
+| regular | 760–899 | 50 | 28 | 96 | 560 |
+| tall | ≥900 | 50 | 32 | 96 | 600 |
+
+`--gap-top` is the breathing space between the category bar and the top of the
+card. Verified at every class: the smallest screen (640px) still leaves 185px of
+image above the 239px details block, so the Add to Cart button can't clip.
 
 | Screen | Class | Card top | Card H | Image | Details |
 |---|---|---|---|---|---|
