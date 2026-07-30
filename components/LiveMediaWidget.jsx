@@ -41,7 +41,26 @@ export default function LiveMediaWidget() {
     else v.pause();
   }, [visible, open, media]);
 
-  if (!media.length) return null;
+  // Always render something so the widget slot is visible — an empty placeholder
+  // makes it obvious where uploaded media will appear.
+  if (!media.length) {
+    return (
+      <a
+        href="/admin"
+        aria-label="Upload live media in admin"
+        className="grid h-[78px] w-[78px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-white/85 text-center shadow-sm backdrop-blur transition hover:border-lime-400"
+      >
+        <span className="px-1">
+          <span className="block text-lg">🎥</span>
+          <span className="mt-0.5 block text-[8px] font-semibold leading-tight text-slate-400">
+            Live media
+            <br />
+            coming soon
+          </span>
+        </span>
+      </a>
+    );
+  }
 
   // latest video wins; otherwise the latest image
   const latestVideo = media.find((m) => m.type === "video");
@@ -55,7 +74,7 @@ export default function LiveMediaWidget() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open live media"
-        className="relative h-[90px] w-[90px] overflow-hidden rounded-2xl border border-white/60 bg-slate-900 shadow-lg transition active:scale-95"
+        className="relative h-[78px] w-[78px] overflow-hidden rounded-2xl border border-white/60 bg-slate-900 shadow-lg transition active:scale-95"
       >
         {item.type === "video" ? (
           <video

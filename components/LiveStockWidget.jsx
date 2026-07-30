@@ -70,7 +70,7 @@ export default function LiveStockWidget({ onSelect }) {
       type="button"
       onClick={() => onSelect?.(p.id)}
       aria-label={`${p.name}, ${p.qty} kg available`}
-      className="h-[90px] w-[90px] overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-2 text-left shadow-lg backdrop-blur transition active:scale-95 hover:border-lime-300"
+      className="h-[78px] w-[78px] overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-2 text-left shadow-lg backdrop-blur transition active:scale-95 hover:border-lime-300"
     >
       <div className="flex items-center gap-1">
         <span className="relative flex h-1.5 w-1.5">

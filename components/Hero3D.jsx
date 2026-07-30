@@ -10,13 +10,11 @@ import LiveMediaWidget from "./LiveMediaWidget";
 // 360px → 324px card, 430px → 360px, desktop → 360px.
 const CARD_W = "clamp(300px, 90vw, 360px)";
 // leaves room for navbar + category pills above, and dots + live ticker below
-// Header 58 + search 48 + 14 gap + pill bar 44 + 18 gap → card starts at 182.
-// Below the card we must clear: dots (~30) + the 90px live widgets + 16px inset
-// + a little slack for the browser's floating toolbar. Overlapping the widgets
-// onto the card looked good in theory but covered the Add to Cart button, so the
-// card now ends above them.
-const TOP_OFFSET = 182;
-const CARD_H = "min(calc(100svh - 330px), 600px)";
+// EVERYTHING fits one mobile screen — no page scrolling.
+// Above the card: header 44 + search 50 = 94, pills 44 (@100) → card starts 152.
+// Below the card: 12 gap + dots 18 + 12 gap + widget 78 + 16 inset ≈ 136.
+const TOP_OFFSET = 152;
+const CARD_H = "min(calc(100svh - 288px), 600px)";
 
 const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
 const CAT_ICONS = {
@@ -263,7 +261,7 @@ export default function Hero3D({
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-lime-accent/[0.05] blur-[150px]" />
 
       {/* category nav — ONE pill container, only the active item highlighted */}
-      <div className="cat-bar absolute inset-x-0 top-[120px] z-[60] px-4">
+      <div className="cat-bar absolute inset-x-0 top-[100px] z-[60] px-4">
         <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-slate-200/80 bg-white/80 p-1 shadow-sm backdrop-blur">
           {chipCats.map((c) => {
             const on = cat === c.id;
