@@ -230,8 +230,7 @@ white rather than lime, which would have vanished against it.
 | Quantity capsule | h-44, ± buttons 36×36 |
 | Checkout button | h-58, radius 18 |
 | Summary sheet | top radius 30px |
-| Login modal | bottom sheet on mobile, centred on `sm+` |
-| Media viewer | fullscreen black, z-95 |
+| Checkout sheet | bottom sheet on mobile, centred on `sm+` |
 
 ---
 
@@ -250,7 +249,7 @@ components/
 ├─ LiveMediaWidget.jsx  autoplay reel (in-tile, no viewer)
 ├─ CartDrawer.jsx
 ├─ WishlistDrawer.jsx
-└─ LoginModal.jsx
+└─ CheckoutSheet.jsx  COD + Razorpay
 lib/
 ├─ products.js        12-item Kerala catalogue
 ├─ firebase.js        env-based init, safe fallback
@@ -279,3 +278,22 @@ lib/
    won't follow later product edits until relinked.
 4. **Admin is a single UID** — a second staff account is denied until its uid is
    added to the rules.
+
+---
+
+## 12. Deliberately NOT in this build
+
+Removed because they did nothing, not because they were hard:
+
+| Removed | Why |
+|---|---|
+| Admin **Offers** tab | Created offers the storefront never read — a form with no effect |
+| Customer **login popup** | Saved a name/phone to localStorage with no password or verification; checkout already collects and remembers both |
+| **GSAP** (~60KB) | Replaced by the native Web Animations API + one rAF counter |
+| `collections`, `recipes`, `features`, `testimonials` | Exports left over from pages deleted earlier — zero imports |
+| `public/collections`, `public/recipes` | Images only those dead exports referenced |
+| `MediaViewer.jsx` | Fullscreen viewer, made redundant by the self-playing reel |
+
+**Admin is reached from the account icon in the header.** It used to hide inside
+the login popup; with the popup gone it's a plain link, which is safe because
+admin is behind real Firebase Auth.

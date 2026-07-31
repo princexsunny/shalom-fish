@@ -36,8 +36,6 @@ export default function Navbar({
   wishCount = 0,
   onCart = () => {},
   onWishlist = () => {},
-  onLogin = () => {},
-  user = null,
   query = "",
   onQuery = () => {},
 }) {
@@ -74,17 +72,16 @@ export default function Navbar({
             )}
           </button>
 
-          <button
-            onClick={onLogin}
-            aria-label={user ? "Account" : "Log in"}
+          {/* Store admin. This used to hide behind a fake "login" popup; the
+              popup is gone, and admin has real Firebase Auth now, so a plain
+              link is honest and costs nothing. */}
+          <a
+            href="/admin"
+            aria-label="Store admin"
             className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/20 transition active:scale-90 hover:bg-white/20"
           >
-            {user ? (
-              <span className="text-[11px] font-bold text-lime-300">{user.name?.[0]?.toUpperCase() || "U"}</span>
-            ) : (
-              <UserIcon />
-            )}
-          </button>
+            <UserIcon />
+          </a>
 
           <button
             onClick={onCart}

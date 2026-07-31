@@ -1,6 +1,5 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { gsap } from "gsap";
 import { products, discountPct } from "@/lib/products";
 import { getData } from "@/lib/store";
 import LiveStockWidget from "./LiveStockWidget";
@@ -140,51 +139,86 @@ export default function Hero3D({
   }, [next, prev]);
 
   // GSAP reveal on active/category change
+  // Entry animation for the active card. This used to be GSAP; it's now the
+  // native Web Animations API + one rAF counter, which does the same job with
+  // no 60KB dependency. Only transform/opacity animate, so it stays on the
+  // compositor and doesn't repaint.
   useEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
     const card = stage.querySelector(".slide-card.is-active");
     if (!card) return;
     const p = list[active];
-    const ctx = gsap.context(() => {
+
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const anims = [];
+    const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+
+    if (!reduce) {
       const img = card.querySelector("[data-img]");
-      if (img) gsap.fromTo(img, { scale: 1.14 }, { scale: 1, duration: 0.9, ease: "power3.out" });
-
-      // transform/opacity only — animating `filter` here caused per-frame repaints
-      const items = card.querySelectorAll("[data-rv]");
-      gsap.fromTo(
-        items,
-        { y: 14, opacity: 0 },
-        { y: 0, opacity: 1, stagger: 0.05, duration: 0.42, ease: "power3.out", delay: 0.04, force3D: true }
-      );
-
-      const priceEl = card.querySelector("[data-price]");
-      if (priceEl && p) {
-        const v = { n: 0 };
-        gsap.to(v, {
-          n: p.price,
-          duration: 0.7,
-          ease: "power2.out",
-          onUpdate: () => (priceEl.textContent = "₹" + Math.round(v.n)),
-        });
+      if (img) {
+        anims.push(
+          img.animate([{ transform: "scale(1.14)" }, { transform: "scale(1)" }], {
+            duration: 900,
+            easing: EASE,
+            fill: "backwards",
+          })
+        );
       }
 
-      // Super Offer: animate discount % into view
-      const discEl = card.querySelector("[data-disc]");
-      if (discEl && p && p.special) {
-        const target = discountPct(p);
-        const d = { n: 0 };
-        gsap.to(d, {
-          n: target,
-          duration: 0.8,
-          ease: "power2.out",
-          onUpdate: () => (discEl.textContent = Math.round(d.n)),
-        });
-      }
+      // staggered detail reveal — delay replaces GSAP's `stagger`
+      card.querySelectorAll("[data-rv]").forEach((el, i) => {
+        anims.push(
+          el.animate([{ transform: "translateY(14px)", opacity: 0 }, { transform: "none", opacity: 1 }], {
+            duration: 420,
+            delay: 40 + i * 50,
+            easing: EASE,
+            fill: "backwards",
+          })
+        );
+      });
+    }
 
-      // (dropped the box-shadow tween — shadows repaint every frame and stuttered)
-    }, stage);
-    return () => ctx.revert();
+    // number count-ups. One rAF loop drives every counter, so adding a second
+    // one doesn't cost a second animation frame subscription.
+    const priceEl = card.querySelector("[data-price]");
+    const discEl = card.querySelector("[data-disc]");
+    const counters = [];
+    if (priceEl && p) counters.push({ el: priceEl, to: p.price, ms: 700, fmt: (n) => "₹" + Math.round(n) });
+    if (discEl && p && p.special) {
+      counters.push({ el: discEl, to: discountPct(p), ms: 800, fmt: (n) => String(Math.round(n)) });
+    }
+
+    let raf = 0;
+    if (counters.length) {
+      if (reduce) {
+        counters.forEach((c) => (c.el.textContent = c.fmt(c.to)));
+      } else {
+        const t0 = performance.now();
+        const tick = (t) => {
+          let running = false;
+          for (const c of counters) {
+            const k = Math.min(1, (t - t0) / c.ms);
+            // easeOutQuad — matches the old power2.out closely enough
+            c.el.textContent = c.fmt(c.to * (1 - (1 - k) * (1 - k)));
+            if (k < 1) running = true;
+          }
+          if (running) raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+      }
+    }
+
+    return () => {
+      anims.forEach((a) => a.cancel());
+      if (raf) cancelAnimationFrame(raf);
+      // leave the final values on screen rather than snapping back to 0
+      counters.forEach((c) => (c.el.textContent = c.fmt(c.to)));
+    };
   }, [active, list]);
 
   // drag / swipe

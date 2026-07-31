@@ -13,7 +13,6 @@ const LS_PW = "shalom_admin_pw";
 const LS_OVERRIDES = "shalom_admin_overrides";
 const LS_DELETED = "shalom_admin_deleted";
 const LS_CATEGORIES = "shalom_admin_categories";
-const LS_OFFERS = "shalom_admin_offers";
 const LS_LIVE = "shalom_admin_live";
 const DEFAULT_PW = "shalom123";
 
@@ -55,7 +54,6 @@ export default function AdminPage() {
   const [overrides, setOverrides] = useState({});
   const [deleted, setDeleted] = useState([]);
   const [categories, setCategories] = useState(DEFAULT_CATS);
-  const [offers, setOffers] = useState([]);
   const [live, setLive] = useState({ enabled: true, speed: 2400 });
   const [media, setMedia] = useState([]);
   const [mediaTitle, setMediaTitle] = useState("");
@@ -63,7 +61,6 @@ export default function AdminPage() {
   const [mediaProduct, setMediaProduct] = useState("");
   const mediaRef = useRef(null);
   const [newCat, setNewCat] = useState("");
-  const [offerForm, setOfferForm] = useState({ title: "", pct: "", code: "" });
   // inventory controls
   const [invSearch, setInvSearch] = useState("");
   const [invStatus, setInvStatus] = useState("All");
@@ -93,7 +90,6 @@ export default function AdminPage() {
       setOverrides(await getData("overrides", {}));
       setDeleted(await getData("deleted", []));
       setCategories(await getData("categories", DEFAULT_CATS));
-      setOffers(await getData("offers", []));
       setLive(await getData("live", { enabled: true, speed: 2400 }));
       setMedia(await getData("media", []));
     })();
@@ -117,10 +113,6 @@ export default function AdminPage() {
   const persistCategories = (v) => {
     setCategories(v);
     setData("categories", v).catch(flashError);
-  };
-  const persistOffers = (v) => {
-    setOffers(v);
-    setData("offers", v).catch(flashError);
   };
   const persistLive = (v) => {
     setLive(v);
@@ -476,17 +468,6 @@ export default function AdminPage() {
   const renameCategory = (i, v) => persistCategories(categories.map((c, k) => (k === i ? v : c)));
   const delCategory = (i) => persistCategories(categories.filter((_, k) => k !== i));
 
-  // offers CRUD
-  const addOffer = () => {
-    if (!offerForm.title || !offerForm.pct) return;
-    persistOffers([
-      { id: "o_" + Date.now(), title: offerForm.title, pct: Number(offerForm.pct), code: offerForm.code, active: true },
-      ...offers,
-    ]);
-    setOfferForm({ title: "", pct: "", code: "" });
-  };
-  const toggleOffer = (id) => persistOffers(offers.map((o) => (o.id === id ? { ...o, active: !o.active } : o)));
-  const delOffer = (id) => persistOffers(offers.filter((o) => o.id !== id));
 
   const startEdit = (p) => {
     setEditId(p.id);
@@ -671,7 +652,6 @@ export default function AdminPage() {
             { l: "Low stock", v: stats.low, c: "text-amber-300" },
             { l: "Out", v: stats.out, c: "text-red-300" },
             { l: "Inv. value", v: "₹" + stats.value.toLocaleString("en-IN"), c: "text-lime-accent" },
-            { l: "Offers", v: offers.length, c: "text-aqua" },
           ].map((s) => (
             <div key={s.l} className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
               <p className={`truncate text-xl font-bold ${s.c}`}>{s.v}</p>
@@ -688,7 +668,6 @@ export default function AdminPage() {
             { id: "add", label: editId ? "Edit Product" : "Add Product", icon: "＋" },
             { id: "inventory", label: `Inventory (${allProducts.length})`, icon: "▦" },
             { id: "categories", label: "Categories", icon: "☰" },
-            { id: "offers", label: "Offers", icon: "%" },
             { id: "live", label: "Live", icon: "◉" },
             { id: "orders", label: `Orders (${orders.filter((o) => o.status === "new").length})`, icon: "🧾" },
             { id: "media", label: `Media (${media.length})`, icon: "▶" },
@@ -1091,86 +1070,6 @@ export default function AdminPage() {
         )}
 
         {/* OFFERS */}
-        {tab === "offers" && (
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div className="glass rounded-4xl p-6 shadow-frost">
-              <h2 className="font-display mb-4 text-lg font-semibold">New offer</h2>
-              <div className="grid gap-4">
-                <label className="block">
-                  <span className="mb-1.5 block text-xs text-slate-500">Title</span>
-                  <input
-                    className={inputCls}
-                    value={offerForm.title}
-                    onChange={(e) => setOfferForm((f) => ({ ...f, title: e.target.value }))}
-                    placeholder="Weekend Special"
-                  />
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <label className="block">
-                    <span className="mb-1.5 block text-xs text-slate-500">Discount %</span>
-                    <input
-                      type="number"
-                      className={inputCls}
-                      value={offerForm.pct}
-                      onChange={(e) => setOfferForm((f) => ({ ...f, pct: e.target.value }))}
-                      placeholder="15"
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="mb-1.5 block text-xs text-slate-500">Code</span>
-                    <input
-                      className={inputCls}
-                      value={offerForm.code}
-                      onChange={(e) => setOfferForm((f) => ({ ...f, code: e.target.value }))}
-                      placeholder="FRESH15"
-                    />
-                  </label>
-                </div>
-                <button
-                  type="button"
-                  onClick={addOffer}
-                  className="w-full rounded-2xl bg-lime-accent px-5 py-3 font-semibold text-ink-900 shadow-glow-lime transition hover:brightness-110"
-                >
-                  Create offer
-                </button>
-              </div>
-            </div>
-            <div className="glass rounded-4xl p-6 shadow-frost">
-              <h2 className="font-display mb-4 text-lg font-semibold">Offers ({offers.length})</h2>
-              <div className="space-y-2">
-                {offers.map((o) => (
-                  <div key={o.id} className="flex items-center justify-between rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-900">
-                        {o.title} <span className="text-lime-accent">{o.pct}%</span>
-                      </p>
-                      {o.code && <p className="text-xs text-slate-400">Code: {o.code}</p>}
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => toggleOffer(o.id)}
-                        className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${
-                          o.active
-                            ? "bg-lime-accent/10 text-lime-accent ring-lime-accent/30"
-                            : "bg-slate-50 text-slate-400 ring-slate-200"
-                        }`}
-                      >
-                        {o.active ? "Active" : "Off"}
-                      </button>
-                      <button type="button" onClick={() => delOffer(o.id)} className="text-slate-400 hover:text-discount">
-                        🗑
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {offers.length === 0 && <p className="text-sm text-slate-400">No offers yet.</p>}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ORDERS */}
         {tab === "orders" && (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
