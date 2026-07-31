@@ -42,7 +42,7 @@ export default function Navbar({
   onQuery = () => {},
 }) {
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-black/20 bg-[#0e4d54]/97 backdrop-blur-md">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-black/20 bg-[#0e4d54] backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-1.5">
         {/* brand */}
         <a href="#home" className="flex min-w-0 items-center gap-2">

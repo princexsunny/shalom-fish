@@ -261,7 +261,7 @@ export default function Hero3D({
         className="cat-bar absolute inset-x-0 z-[60] px-4"
         style={{ top: "calc(var(--header-h) + var(--search-h) + 6px)" }}
       >
-        <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-white/10 bg-[#0b4148]/95 p-[3px] shadow-sm backdrop-blur-md">
+        <div className="no-scrollbar mx-auto flex max-w-md snap-x items-center gap-1 overflow-x-auto rounded-full border border-white/10 bg-[#0b4148] p-[3px] shadow-sm backdrop-blur-md">
           {chipCats.map((c) => {
             const on = cat === c.id;
             return (
