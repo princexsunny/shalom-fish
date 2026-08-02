@@ -297,3 +297,59 @@ Removed because they did nothing, not because they were hard:
 **Admin is reached from the account icon in the header.** It used to hide inside
 the login popup; with the popup gone it's a plain link, which is safe because
 admin is behind real Firebase Auth.
+
+
+---
+
+## 13. Catalogue (20 Kerala fish)
+
+Ordered by demand, 1 = sells most. Categories follow habitat.
+
+| # | Malayalam | English | Category | Photo |
+|--:|---|---|---|---|
+| 1 | Mathi · Chaala | Sardine | Marine | ✓ |
+| 2 | Ayala | Indian Mackerel | Marine | ✓ |
+| 3 | Choora | Tuna | Marine | ✓ |
+| 4 | Neymeen · Ayakoora | Seer Fish | Marine | ✓ |
+| 5 | Natholi · Kozhuva | Anchovy | Marine | ✓ |
+| 6 | Karimeen | Pearl Spot | Brackish | ✓ |
+| 7 | Avoli | Pomfret | Marine | ✓ |
+| 8 | Chemballi | Red Snapper | Marine | ✓ |
+| 9 | Koduva | Asian Seabass | Brackish | — |
+| 10 | Kanambu | Grey Mullet | Marine | — |
+| 11 | Varaal | Snakehead Murrel | Freshwater | — |
+| 12 | Tilapia | Tilapia | Freshwater | — |
+| 13 | Vaala | Ribbonfish | Marine | — |
+| 14 | Sheelavu | Barracuda | Marine | — |
+| 15 | Vatta · Para | Trevally | Marine | — |
+| 16 | Vila | Emperor Fish | Marine | — |
+| 17 | Kora | Croaker | Marine | — |
+| 18 | Motha | Cobia | Marine | — |
+| 19 | Thirutha | Grey Mullet | Brackish | — |
+| 20 | Sravu | Shark | Marine | — *(ships hidden)* |
+
+**Adding a photo:** drop a file at `public/products/<id>.jpg` (id is the first
+column of `lib/products.js`, e.g. `varaal.jpg`), or upload one per product in
+Admin → Edit. Until then the card shows `_placeholder.svg`, not a broken image —
+`p.image || fallback` alone can't catch this, because the path exists in data
+and only 404s at request time, so every `<img>` also has an `onError` swap.
+
+### Show / hide
+
+`hidden: true` removes a fish from the storefront **without deleting it** — price,
+stock and photo are preserved, so putting it back is one tap.
+
+- Admin → Inventory → the **eye icon** on each row toggles it
+- Admin → Inventory → the **All products / Visible / Hidden** dropdown filters
+- Hidden rows are dimmed and carry a grey `HIDDEN` badge; the stat strip counts them
+- The Add/Edit form has a **Hidden** checkbox
+- Filtering happens **once** in `Hero3D.all`, so hidden fish can't leak into the
+  carousel, search, the live-stock ticker or media product links
+
+Shark ships hidden: landings have dropped sharply and several species are
+protected — switch it on only if you genuinely stock it and it's legal locally.
+
+### ⚠️ Prices are estimates
+
+Seeded from typical Kochi retail rates per 500 g. Seafood prices move with the
+landing, so **set your real rates in Admin → Inventory before going live.**

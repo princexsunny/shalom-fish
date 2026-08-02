@@ -57,7 +57,11 @@ export default function WishlistDrawer({ open, onClose, items = [], onRemove = (
                     {/* thumbnail — the biggest recognition win */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={p.image || "/products/seer.jpg"}
+                      src={p.image || "/products/neymeen.jpg"} onError={(e) => {
+                        if (e.currentTarget.dataset.fb) return;
+                        e.currentTarget.dataset.fb = "1";
+                        e.currentTarget.src = "/products/_placeholder.svg";
+                      }}
                       alt={p.name}
                       className="h-[76px] w-[76px] shrink-0 rounded-xl object-cover ring-1 ring-slate-200"
                     />

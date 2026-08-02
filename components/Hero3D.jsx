@@ -11,14 +11,8 @@ const CARD_W = "var(--card-w)";
 const CARD_H = "var(--card-h)";
 const TOP_OFFSET = "var(--top-offset)";
 
-const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
-const CAT_ICONS = {
-  "Premium Catch": "★",
-  "Backwater Special": "≈",
-  Shellfish: "◆",
-  "Ready to Cook": "✦",
-  Everyday: "●",
-};
+const DEFAULT_CATS = ["Marine", "Brackish", "Freshwater"];
+const CAT_ICONS = { Marine: "≋", Brackish: "≈", Freshwater: "◦" };
 
 // weight options (price scales from the per-500g base)
 const WEIGHTS = [
@@ -79,7 +73,9 @@ export default function Hero3D({
     const base = products
       .filter((p) => !deleted.includes(p.id))
       .map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
-    return [...extra, ...base];
+    // `hidden` products are excluded here, once, so nothing downstream (cards,
+    // search, live stock, media links) can accidentally surface them.
+    return [...extra, ...base].filter((p) => !p.hidden);
   }, [extra, overrides, deleted]);
   const list = useMemo(() => {
     const byCat = cat === "All" ? all : all.filter((p) => p.category === cat);
@@ -330,7 +326,7 @@ export default function Hero3D({
           <div
             key={"refl-" + cat + active}
             className="slide-reflection"
-            style={{ backgroundImage: `url(${list[active].image || "/products/seer.jpg"})` }}
+            style={{ backgroundImage: `url(${list[active].image || "/products/_placeholder.svg"})` }}
           />
         )}
 
@@ -359,7 +355,11 @@ export default function Hero3D({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   data-img
-                  src={p.image || "/products/seer.jpg"}
+                  src={p.image || "/products/neymeen.jpg"} onError={(e) => {
+                        if (e.currentTarget.dataset.fb) return;
+                        e.currentTarget.dataset.fb = "1";
+                        e.currentTarget.src = "/products/_placeholder.svg";
+                      }}
                   alt={p.name}
                   draggable="false"
                   loading={isA ? "eager" : "lazy"}

@@ -77,7 +77,11 @@ export default function CartDrawer({ open, onClose, cart, setCart }) {
                     {/* thumbnail */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={x.image || "/products/seer.jpg"}
+                      src={x.image || "/products/neymeen.jpg"} onError={(e) => {
+                        if (e.currentTarget.dataset.fb) return;
+                        e.currentTarget.dataset.fb = "1";
+                        e.currentTarget.src = "/products/_placeholder.svg";
+                      }}
                       alt={x.name}
                       className="h-[68px] w-[68px] shrink-0 rounded-xl object-cover ring-1 ring-slate-200"
                     />

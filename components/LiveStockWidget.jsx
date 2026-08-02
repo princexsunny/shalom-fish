@@ -90,6 +90,7 @@ export default function LiveStockWidget({ onSelect }) {
       .filter((p) => !deleted.includes(p.id))
       .map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
     return [...extra, ...catalogue]
+      .filter((p) => !p.hidden) // hidden fish must not appear in the live ticker either
       .map((p) => {
         const realDelta = p.oldPrice && p.oldPrice !== p.price ? p.price - p.oldPrice : null;
         const seed = String(p.id)
@@ -140,7 +141,11 @@ export default function LiveStockWidget({ onSelect }) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         key={p.id}
-        src={p.image || "/products/seer.jpg"}
+        src={p.image || "/products/neymeen.jpg"} onError={(e) => {
+                        if (e.currentTarget.dataset.fb) return;
+                        e.currentTarget.dataset.fb = "1";
+                        e.currentTarget.src = "/products/_placeholder.svg";
+                      }}
         alt=""
         loading="lazy"
         className={`absolute right-2 top-2 h-8 w-8 rounded-lg object-cover ring-1 ring-slate-200 transition-opacity duration-200 ${

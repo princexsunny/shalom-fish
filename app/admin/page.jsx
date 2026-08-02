@@ -5,7 +5,7 @@ import { getData, setData, uploadImage, uploadMedia, firebaseEnabled } from "@/l
 import { signIn, signOutAdmin, onAdminAuth, sendReset, authMessage } from "@/lib/adminAuth";
 import { listOrders, setOrderStatus, ORDER_STATUSES, STATUS_LABEL } from "@/lib/orders";
 
-const DEFAULT_CATS = ["Premium Catch", "Backwater Special", "Shellfish", "Ready to Cook", "Everyday"];
+const DEFAULT_CATS = ["Marine", "Brackish", "Freshwater"];
 const CATEGORY_OPTIONS = DEFAULT_CATS;
 const LS_PRODUCTS = "shalom_admin_products";
 const LS_STOCK = "shalom_admin_stock";
@@ -29,6 +29,7 @@ const EMPTY = {
   stock: "25",
   premium: false,
   todaysCatch: false,
+  hidden: false,
   special: false,
   availMode: "24x7",
   days: [],
@@ -66,6 +67,7 @@ export default function AdminPage() {
   const [invStatus, setInvStatus] = useState("All");
   const [invCat, setInvCat] = useState("All");
   const [invSort, setInvSort] = useState("name");
+  const [invVis, setInvVis] = useState("All");
   // orders
   const [orders, setOrders] = useState([]);
   const [ordersBusy, setOrdersBusy] = useState(false);
@@ -366,6 +368,7 @@ export default function AdminPage() {
       unit: form.unit,
       premium: form.premium,
       todaysCatch: form.todaysCatch,
+      hidden: form.hidden,
       special: form.special,
       schedule: {
         mode: form.availMode,
@@ -418,18 +421,20 @@ export default function AdminPage() {
       const s = stockOf(p.id);
       a.units += s;
       a.value += s * (p.price || 0);
+      if (p.hidden) a.hidden += 1;
       if (s <= 0) a.out += 1;
       else if (s < 8) a.low += 1;
       else a.inStock += 1;
       return a;
     },
-    { units: 0, value: 0, out: 0, low: 0, inStock: 0 }
+    { units: 0, value: 0, out: 0, low: 0, inStock: 0, hidden: 0 }
   );
 
   // ---- inventory filtering/sorting ----
   const invFiltered = allProducts
     .filter((p) => !invSearch || (p.name || "").toLowerCase().includes(invSearch.toLowerCase()))
     .filter((p) => invCat === "All" || p.category === invCat)
+    .filter((p) => (invVis === "All" ? true : invVis === "Visible" ? !p.hidden : !!p.hidden))
     .filter((p) => {
       if (invStatus === "All") return true;
       const s = stockOf(p.id);
@@ -443,6 +448,23 @@ export default function AdminPage() {
       if (invSort === "stock") return stockOf(x.id) - stockOf(y.id);
       return (x.name || "").localeCompare(y.name || "");
     });
+  /**
+   * Show/hide a product on the storefront. Deliberately NOT delete: a hidden
+   * fish keeps its price, stock and photo, so putting it back is one tap when
+   * the next catch lands.
+   *
+   * Saved products live in `saved`; catalogue products are patched through
+   * `overrides` — same reason edit works that way.
+   */
+  const toggleHidden = (p) => {
+    const next = !p.hidden;
+    if (saved.some((s) => s.id === p.id)) {
+      persistSaved(saved.map((s) => (s.id === p.id ? { ...s, hidden: next } : s)));
+    } else {
+      persistOverrides({ ...overrides, [p.id]: { ...(overrides[p.id] || {}), hidden: next } });
+    }
+  };
+
   const delProduct = (p) => {
     if (saved.some((s) => s.id === p.id)) {
       persistSaved(saved.filter((s) => s.id !== p.id));
@@ -482,6 +504,7 @@ export default function AdminPage() {
       stock: String(stockOf(p.id)),
       premium: !!p.premium,
       todaysCatch: !!p.todaysCatch,
+      hidden: !!p.hidden,
       special: !!p.special,
       availMode: p.schedule?.mode || "24x7",
       days: p.schedule?.days || [],
@@ -651,6 +674,7 @@ export default function AdminPage() {
             { l: "In stock", v: stats.inStock, c: "text-emerald-300" },
             { l: "Low stock", v: stats.low, c: "text-amber-300" },
             { l: "Out", v: stats.out, c: "text-red-300" },
+            { l: "Hidden", v: stats.hidden, c: "text-slate-400" },
             { l: "Inv. value", v: "₹" + stats.value.toLocaleString("en-IN"), c: "text-lime-accent" },
           ].map((s) => (
             <div key={s.l} className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
@@ -754,6 +778,10 @@ export default function AdminPage() {
                   <label className="flex items-center gap-2 text-sm text-slate-700">
                     <input type="checkbox" checked={form.todaysCatch} onChange={field("todaysCatch")} className="h-4 w-4 accent-lime-accent" />
                     Today&apos;s Catch
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-slate-700" title="Keeps it off the shop without deleting it">
+                    <input type="checkbox" checked={form.hidden} onChange={field("hidden")} className="h-4 w-4 accent-slate-500" />
+                    Hidden
                   </label>
                 </div>
 
@@ -948,6 +976,17 @@ export default function AdminPage() {
                 ))}
               </select>
               <select
+                value={invVis}
+                onChange={(e) => setInvVis(e.target.value)}
+                className="rounded-2xl bg-white px-3 py-2.5 text-sm outline-none ring-1 ring-slate-200"
+              >
+                {["All", "Visible", "Hidden"].map((o) => (
+                  <option key={o} value={o} className="bg-white">
+                    {o === "All" ? "All products" : o}
+                  </option>
+                ))}
+              </select>
+              <select
                 value={invSort}
                 onChange={(e) => setInvSort(e.target.value)}
                 className="rounded-2xl bg-white px-3 py-2.5 text-sm outline-none ring-1 ring-slate-200"
@@ -973,12 +1012,18 @@ export default function AdminPage() {
                 return (
                   <div
                     key={p.id}
-                    className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-slate-100 px-5 py-3 text-sm sm:grid-cols-[1.6fr_1fr_auto_auto_auto]"
+                    className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-slate-100 px-5 py-3 text-sm sm:grid-cols-[1.6fr_1fr_auto_auto_auto] ${
+                      p.hidden ? "bg-slate-50/80 opacity-60" : ""
+                    }`}
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={p.image || "/products/seer.jpg"}
+                        src={p.image || "/products/neymeen.jpg"} onError={(e) => {
+                        if (e.currentTarget.dataset.fb) return;
+                        e.currentTarget.dataset.fb = "1";
+                        e.currentTarget.src = "/products/_placeholder.svg";
+                      }}
                         alt={p.name}
                         className="h-10 w-10 shrink-0 rounded-xl object-cover ring-1 ring-slate-200"
                       />
@@ -986,6 +1031,11 @@ export default function AdminPage() {
                         <p className="truncate font-medium text-slate-900">
                           {p.special && <span className="mr-1 text-lime-accent">★</span>}
                           {p.name}
+                          {p.hidden && (
+                            <span className="ml-1.5 rounded-full bg-slate-200 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-slate-600">
+                              Hidden
+                            </span>
+                          )}
                         </p>
                         <p className="truncate text-xs text-slate-400">
                           {p.schedule?.mode === "scheduled"
@@ -1004,6 +1054,27 @@ export default function AdminPage() {
                     />
                     <div className="flex items-center gap-2">
                       <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${st.c}`}>{st.t}</span>
+                      <button
+                        onClick={() => toggleHidden(p)}
+                        aria-label={p.hidden ? `Show ${p.name} on the shop` : `Hide ${p.name} from the shop`}
+                        title={p.hidden ? "Hidden — tap to show on the shop" : "Visible — tap to hide"}
+                        className={`transition ${
+                          p.hidden ? "text-slate-400 hover:text-lime-accent" : "text-lime-accent hover:text-slate-400"
+                        }`}
+                      >
+                        {p.hidden ? (
+                          <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 3l18 18" />
+                            <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                            <path d="M9.4 5.2A9.5 9.5 0 0 1 12 5c5 0 9 4.5 9 7a12 12 0 0 1-2.2 3.1M6.2 6.7A12.8 12.8 0 0 0 3 12c0 2.5 4 7 9 7a9.7 9.7 0 0 0 3.5-.6" />
+                          </svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 12s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7Z" />
+                            <circle cx="12" cy="12" r="2.6" />
+                          </svg>
+                        )}
+                      </button>
                       <button
                         onClick={() => startEdit(p)}
                         aria-label="Edit"

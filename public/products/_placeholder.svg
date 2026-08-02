@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="400" height="400" fill="#eef3f6"/>
+  <g fill="none" stroke="#94a3b8" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M92 200c30-46 74-69 118-69 44 0 82 23 108 69-26 46-64 69-108 69-44 0-88-23-118-69Z"/>
+    <path d="M318 200l44-34v68l-44-34Z"/>
+    <circle cx="168" cy="182" r="7" fill="#94a3b8" stroke="none"/>
+    <path d="M214 156c14 12 22 27 22 44s-8 32-22 44"/>
+  </g>
+  <text x="200" y="318" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" fill="#94a3b8">Photo coming soon</text>
+</svg>
